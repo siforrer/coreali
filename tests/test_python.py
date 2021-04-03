@@ -47,7 +47,7 @@ class TestPythonExporter(unittest.TestCase):
         Test that the write and read functions write to the right location
         """
         test_reg_desc = test_register_description(RegIoNull())
-        test_reg_desc._rio.mem = [0]*test_reg_desc.node.size
+        test_reg_desc._rio.mem = np.empty([test_reg_desc.node.size], np.uint8)
         test_reg_desc._rio.verbose = False
 
         test_reg_desc.AnAddrmap.AnotherRegAt20.write(0x12345678)
@@ -57,12 +57,12 @@ class TestPythonExporter(unittest.TestCase):
             test_reg_desc.AnAddrmap.AnotherRegAt20.read(), 0x12345678)
         self.assertEqual(
             test_reg_desc.AnAddrmap.AnotherRegAt20.VAL.read(), 0x12345678)
-        self.assertEqual(test_reg_desc._rio.mem[int(0x20/4)], 0x12345678)
+        self.assertEqual(test_reg_desc._rio.mem[0x20], 0x78)
         self.assertEqual(
             test_reg_desc.AnotherAddrmap.AnotherRegAt20.read(), 0x87654321)
         self.assertEqual(
             test_reg_desc.AnotherAddrmap.AnotherRegAt20.VAL.read(), 0x87654321)
-        self.assertEqual(test_reg_desc._rio.mem[int(0x120/4)], 0x87654321)
+        self.assertEqual(test_reg_desc._rio.mem[0x120], 0x21)
 
         test_reg_desc.AnotherAddrmap.ARegWithFields.FIELD13DOWNTO4.write(3)
         self.assertEqual(
@@ -73,7 +73,7 @@ class TestPythonExporter(unittest.TestCase):
         Test the accessibility of arrays through the __get_item__ or [] method
         """
         test_reg_desc = test_register_description(RegIoNull())
-        test_reg_desc._rio.mem = [0]*test_reg_desc.node.size
+        test_reg_desc._rio.mem = np.zeros([test_reg_desc.node.size], np.uint8)
         test_reg_desc._rio.verbose = False
 
         # Elementwise access
@@ -104,7 +104,7 @@ class TestPythonExporter(unittest.TestCase):
             np.array_equal(test_reg_desc.AnotherAddrmap.ARepeatedReg.read(), [1, 2, 3]))
 
         # Write starting from index
-        test_reg_desc.AnotherAddrmap.ARepeatedReg[1].write([4, 5])
+        test_reg_desc.AnotherAddrmap.ARepeatedReg[1:].write([4, 5])
         self.assertTrue(
             np.array_equal(test_reg_desc.AnotherAddrmap.ARepeatedReg.read(), [1, 4, 5]))
 
@@ -128,7 +128,7 @@ class TestPythonExporter(unittest.TestCase):
         Test the accessibility of arrays through the __get_item__ or [] method
         """
         test_reg_desc = test_register_description(RegIoNull())
-        test_reg_desc._rio.mem = [0]*test_reg_desc.node.size
+        test_reg_desc._rio.mem = np.empty([test_reg_desc.node.size], np.uint8)
         test_reg_desc._rio.verbose = False
 
         test_reg_desc.AnAddrmap.ARegfile[0].ARegInARegFile[0].write(1)
@@ -149,37 +149,39 @@ class TestPythonExporter(unittest.TestCase):
         Test the accessibility of memories and arrays of memories
         """
         test_reg_desc = test_register_description(RegIoNull())
-        test_reg_desc._rio.mem = [0]*1024
+        test_reg_desc._rio.mem = np.zeros([test_reg_desc.node.size], np.uint8)
         test_reg_desc._rio.verbose = False
 
-        self.assertEqual(
-            test_reg_desc.Mem64x32.read(), [0]*64)
+        self.assertTrue(
+            np.array_equal(test_reg_desc.Mem64x32.read(), [0]*64))
 
         test_reg_desc.Mem64x32.write(0, list(range(0, 64, 1)))
-        self.assertEqual(list(range(0, 64, 1)),
-                         test_reg_desc._rio.mem[int(0x400/4):int(0x500/4)])
+        self.assertTrue(
+            np.array_equal(list(range(0, 64, 1)),
+                         test_reg_desc._rio.read_words(0x400,4,64)))
 
-        self.assertEqual(
-            test_reg_desc.Mem64x32.read(), list(range(0, 64, 1)))
+        self.assertTrue(
+            np.array_equal(test_reg_desc.Mem64x32.read(), list(range(0, 64, 1))))
 
-        self.assertEqual(
-            test_reg_desc.Mem64x32.read(10, 30), list(range(10, 40, 1)))
+        self.assertTrue(
+            np.array_equal(test_reg_desc.Mem64x32.read(10, 30), list(range(10, 40, 1))))
 
         test_reg_desc.ABlockWithMemory.AMemory.write(0, list(range(0, 128, 2)))
-        self.assertEqual(list(range(0, 128, 2)),
-                         test_reg_desc._rio.mem[int(0x300/4):int(0x400/4)])
+        self.assertTrue(
+            np.array_equal(list(range(0, 128, 2)),
+                         test_reg_desc._rio.read_words(0x300,4,64)))
 
         test_reg_desc.TwoMemories.write(
             0, [list(range(100, 164, 1)), list(range(200, 264, 1))])
-        self.assertEqual(
-            test_reg_desc.TwoMemories.read(), [list(range(100, 164, 1)), list(range(200, 264, 1))])
+        self.assertTrue(
+            np.array_equal(test_reg_desc.TwoMemories.read(), [list(range(100, 164, 1)), list(range(200, 264, 1))]))
 
     def test_tostr(self):
         """
         Test that the tostr function generates the desired output
         """
         test_reg_desc = test_register_description(RegIoNull())
-        test_reg_desc._rio.mem = list(range(test_reg_desc.node.size))
+        test_reg_desc._rio.mem = np.array(list(range(test_reg_desc.node.size)))
         test_reg_desc._rio.verbose = False
 
         test_reg_desc.AnAddrmap.AnotherRegAt20.write(0x12345678)
@@ -197,41 +199,48 @@ class TestPythonExporter(unittest.TestCase):
         result = str(test_reg_desc)
         expected = """test_register_description:
   AnAddrmap           :
-    ARegWithFields    :         48 = 0x00000030
+    ARegWithFields    :   50462768 = 0x03020030
       FIELD0DOWNTO0   :          0 = 0x00000000
       FIELD13DOWNTO4  :          3 = 0x00000003
-    ARepeatedReg      : [1 2 3]
-      VAL             : [1 2 3]
+    ARepeatedReg      : [117835012 185207048 252579084]
+      VAL             : [117835012 185207048 252579084]
     AnotherRegAt20    :  305419896 = 0x12345678
       VAL             :  305419896 = 0x12345678
-    TenRegs           : [ 9 10 11 12 13 14 15 16 17 18]
-      VAL             : [ 9 10 11 12 13 14 15 16 17 18]
+    TenRegs           : [ 656811300  724183336  791555372  858927408  926299444  993671480
+ 10610435 ...
+      VAL             : [ 656811300  724183336  791555372  858927408  926299444  993671480
+ 10610435 ...
     ARegfile          :
-      ARegInARegFile  : [[20 21 22 23]
- [24 25 26 27]]
-        VAL           : [[20 21 22 23]
- [24 25 26 27]]
+      ARegInARegFile  : [[1397903696 1465275732 1532647768 1600019804]
+ [1667391840 1734763876 18021 ...
+        VAL           : [[1397903696 1465275732 1532647768 1600019804]
+ [1667391840 1734763876 18021 ...
   AnotherAddrmap      :
-    ARegWithFields    :         65 = 0x00000041
+    ARegWithFields    :   67305985 = 0x04030201
       FIELD0DOWNTO0   :          1 = 0x00000001
-      FIELD13DOWNTO4  :          4 = 0x00000004
-    ARepeatedReg      : [65 66 67]
-      VAL             : [1 2 3]
+      FIELD13DOWNTO4  :         32 = 0x00000020
+    ARepeatedReg      : [4429645316 4497017352 4564389388]
+      VAL             : [134678020 202050056 269422092]
     AnotherRegAt20    : 2271560481 = 0x87654321
       VAL             : 2271560481 = 0x87654321
-    TenRegs           : [73 74 75 76  4  5  6 80 81 82]
-      VAL             : [ 9 10 11 12  4  5  6 16 17 18]
+    TenRegs           : [4968621604 5035993640 5103365676 5170737712          4          5
+          ...
+      VAL             : [ 673654308  741026344  808398380  875770416          4          5
+          ...
     ARegfile          :
-      ARegInARegFile  : [[84 85 86 87]
- [88 89 90 91]]
-        VAL           : [[20 21 22 23]
- [24 25 26 27]]
+      ARegInARegFile  : [[5709714000 5777086036 5844458072 5911830108]
+ [5979202144 6046574180 61139 ...
+        VAL           : [[1414746704 1482118740 1549490776 1616862812]
+ [1684234848 1751606884 18189 ...
   ABlockWithMemory    :
-    AReg              :        128 = 0x00000080
-      VAL             :        128 = 0x00000080
-    AMemory           : [192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206,  ...
-  Mem64x32            : [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 266, 267, 268, 269, 270, 271, 272, 273,  ...
-  TwoMemories         : [[10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28 ..."""
+    AReg              : 8674083584 = 0x205040300
+      VAL             :   84148992 = 0x05040300
+    AMemory           : [12985893888 13053265924 13120637960 13188009996 13255382032 13322754068
+ 13 ...
+  Mem64x32            : [          0           2           4           6           8          10
+    ...
+  TwoMemories         : [array([10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
+ ..."""
 
         if result != expected:
             print(result)
