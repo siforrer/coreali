@@ -181,7 +181,7 @@ class TestPythonExporter(unittest.TestCase):
         Test that the tostr function generates the desired output
         """
         test_reg_desc = test_register_description(RegIoNull())
-        test_reg_desc._rio.mem = np.array(list(range(test_reg_desc.node.size)))
+        test_reg_desc._rio.mem = np.array(list(range(test_reg_desc.node.size)), np.uint8)
         test_reg_desc._rio.verbose = False
 
         test_reg_desc.AnAddrmap.AnotherRegAt20.write(0x12345678)
@@ -216,31 +216,37 @@ class TestPythonExporter(unittest.TestCase):
         VAL           : [[1397903696 1465275732 1532647768 1600019804]
  [1667391840 1734763876 18021 ...
   AnotherAddrmap      :
-    ARegWithFields    :   67305985 = 0x04030201
+    ARegWithFields    :   50462977 = 0x03020101
       FIELD0DOWNTO0   :          1 = 0x00000001
-      FIELD13DOWNTO4  :         32 = 0x00000020
-    ARepeatedReg      : [4429645316 4497017352 4564389388]
-      VAL             : [134678020 202050056 269422092]
+      FIELD13DOWNTO4  :         16 = 0x00000010
+    ARepeatedReg      : [117835012 185207048 252579084]
+      VAL             : [117835012 185207048 252579084]
     AnotherRegAt20    : 2271560481 = 0x87654321
       VAL             : 2271560481 = 0x87654321
-    TenRegs           : [4968621604 5035993640 5103365676 5170737712          4          5
+    TenRegs           : [ 656811300  724183336  791555372  858927408          4          5
           ...
-      VAL             : [ 673654308  741026344  808398380  875770416          4          5
+      VAL             : [ 656811300  724183336  791555372  858927408          4          5
           ...
     ARegfile          :
-      ARegInARegFile  : [[5709714000 5777086036 5844458072 5911830108]
- [5979202144 6046574180 61139 ...
-        VAL           : [[1414746704 1482118740 1549490776 1616862812]
- [1684234848 1751606884 18189 ...
+      ARegInARegFile  : [[1397903696 1465275732 1532647768 1600019804]
+ [1667391840 1734763876 18021 ...
+        VAL           : [[1397903696 1465275732 1532647768 1600019804]
+ [1667391840 1734763876 18021 ...
   ABlockWithMemory    :
-    AReg              : 8674083584 = 0x205040300
-      VAL             :   84148992 = 0x05040300
-    AMemory           : [12985893888 13053265924 13120637960 13188009996 13255382032 13322754068
- 13 ...
-  Mem64x32            : [          0           2           4           6           8          10
-    ...
+    AReg              :   50462976 = 0x03020100
+      VAL             :   50462976 = 0x03020100
+    AMemory           : [  50462976  117835012  185207048  252579084  319951120  387323156
+  4546951 ...
+  Mem64x32            : [         0          2          4          6          8         10
+          ...
   TwoMemories         : [array([10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
- ..."""
+ ...
+  AnAddrmapWith8bitRegs:
+    AReg0             :          0 = 0x00
+      VAL             :          0 = 0x00
+    AReg1             :          1 = 0x01
+      FIELD3DOWNTO0   :          1 = 0x01
+      FIELD7DOWNTO4   :          0 = 0x00"""
 
         if result != expected:
             print(result)
