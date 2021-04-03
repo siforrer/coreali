@@ -42,6 +42,16 @@ addrmap a_block_with_memory {
 	external mem64x32 AMemory;
 };
 
+addrmap an_addrmap_with_8bit_regs {
+	default regwidth=8;
+	reg {
+		field {sw = rw; hw = r;} VAL[8];
+	} AReg0;
+	reg {
+		field {sw = rw; hw = r;} VAL[3:0];
+	} AReg1;
+};
+
 
 addrmap test_register_description { 
     an_addrmap AnAddrmap @0x0;
@@ -51,4 +61,5 @@ addrmap test_register_description {
 	external mem64x32 TwoMemories[2];
 	TwoMemories->name = "2x 64x32 Memory";
 	TwoMemories->desc = "This are two memories";
+	an_addrmap_with_8bit_regs AnAddrmapWith8bitRegs;
 };
