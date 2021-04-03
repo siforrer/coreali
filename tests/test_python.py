@@ -16,7 +16,7 @@ from coreali import PythonExporter
 from coreali.registerio import RegIoNull
 from coreali.Selector import Selector
 
-input_files = ["./systemrdl/test_register_description.rdl"]
+input_files = ["./test_register_description.rdl"]
 
 if not os.path.exists("generated/python/"):
     os.makedirs("generated/python/")
