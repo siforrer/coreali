@@ -5,6 +5,8 @@ Created on Mon Mar 29 19:38:56 2021
 
 @author: silvan
 """
+import sys
+sys.path.insert(0, "../src/")
 import unittest
 import numpy as np
 from coreali.Selector import Selector, Selectable

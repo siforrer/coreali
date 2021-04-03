@@ -6,6 +6,8 @@ Created on Wed Mar 17 16:09:37 2021
 """
 
 import sys
+sys.path.insert(0, "../src/")
+
 import os
 import unittest
 import time
