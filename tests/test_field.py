@@ -12,7 +12,7 @@ import unittest
 import numpy as np
 from systemrdl import RDLCompiler, RDLCompileError
 from coreali import PythonExporter
-from coreali.registerio import RegIoNull
+from coreali.registerio import RegIoNoHW
 
 input_files = ["./test_register_description.rdl"]
 
@@ -37,9 +37,8 @@ from test_register_description import test_register_description
 
 class TestAccessableFieldNode(unittest.TestCase):
     def test_modify_register_value(self):
-        test_reg_desc = test_register_description(RegIoNull())
+        test_reg_desc = test_register_description(RegIoNoHW())
         test_reg_desc._rio.mem = np.empty([test_reg_desc.node.size], np.uint8)
-        test_reg_desc._rio.verbose = False
         
         field = test_reg_desc.AnAddrmap.ARegWithFields.FIELD13DOWNTO4
         self.assertEqual(field._modify_register_value(np.uint64(0),np.uint64(12)), 12*2**4)

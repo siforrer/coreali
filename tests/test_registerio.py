@@ -10,12 +10,12 @@ import unittest
 import sys
 sys.path.insert(0, "../src/")
 
-from coreali.registerio import RegIoNull
+from coreali.registerio import RegIoNoHW
 
 class TestRegisterIo(unittest.TestCase):
     
     def test_write_raw(self):
-        rio = RegIoNull()
+        rio = RegIoNoHW()
         rio.mem = np.zeros([10],np.uint8)
         
         rio.write_raw(5,[2])
@@ -26,7 +26,7 @@ class TestRegisterIo(unittest.TestCase):
                 rio.mem, [0, 0, 0, 4, 5, 6, 7, 0, 0, 0]))
 
     def test_read_raw(self):
-        rio = RegIoNull()
+        rio = RegIoNoHW()
         rio.mem = np.zeros([10],np.uint8)
         for i in range(len(rio.mem)):
             rio.mem[i] = i+100
@@ -37,7 +37,7 @@ class TestRegisterIo(unittest.TestCase):
                 rio.read_raw(5,3), [105,106,107]))
         
     def test_write_word(self):
-        rio = RegIoNull()
+        rio = RegIoNoHW()
         rio.mem = np.arange(100, 116, dtype=np.uint8)        
         rio.write_word(8, 4, 0x04030201)
         self.assertTrue(np.array_equal(
@@ -48,7 +48,7 @@ class TestRegisterIo(unittest.TestCase):
                 rio.mem[10:12], [1,2]))
         
     def test_read_word(self):
-        rio = RegIoNull()
+        rio = RegIoNoHW()
         rio.mem = np.arange(0x10, 0x30, dtype=np.uint8)        
 
         self.assertEqual(rio.read_word(4,4),0x17161514)
@@ -56,7 +56,7 @@ class TestRegisterIo(unittest.TestCase):
         self.assertEqual(rio.read_word(6,2),0x1716)
         
     def test_write_words(self):
-        rio = RegIoNull()
+        rio = RegIoNoHW()
         rio.mem = np.zeros([40],np.uint8)        
         
         rio.write_words(12, 4, [1,2,3])
@@ -68,7 +68,7 @@ class TestRegisterIo(unittest.TestCase):
         self.assertEqual(rio.read_word(24,4),0)
         
     def test_read_words(self):
-        rio = RegIoNull()
+        rio = RegIoNoHW()
         rio.mem = np.zeros([64],np.uint8)        
         
         rio.write_words(0, 4, np.arange(0,16))

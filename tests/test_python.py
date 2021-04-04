@@ -15,7 +15,7 @@ import numpy as np
 from io import StringIO
 from systemrdl import RDLCompiler, RDLCompileError
 from coreali import PythonExporter
-from coreali.registerio import RegIoNull
+from coreali.registerio import RegIoNoHW
 from coreali.Selector import Selector
 
 input_files = ["./test_register_description.rdl"]
@@ -35,7 +35,8 @@ except RDLCompileError:
 pythonExporter = PythonExporter()
 pythonExporter.source_files = input_files
 pythonExporter.export(root, "generated/python/test_register_description.py")
-sys.path.insert(0, "generated/python/")
+if not "generated/python/" in sys.path:
+    sys.path.insert(0, "generated/python/")
 from test_register_description import test_register_description
 
 class TestPythonExporter(unittest.TestCase):
@@ -46,9 +47,8 @@ class TestPythonExporter(unittest.TestCase):
         """
         Test that the write and read functions write to the right location
         """
-        test_reg_desc = test_register_description(RegIoNull())
-        test_reg_desc._rio.mem = np.empty([test_reg_desc.node.size], np.uint8)
-        test_reg_desc._rio.verbose = False
+        test_reg_desc = test_register_description(RegIoNoHW())
+        test_reg_desc._rio.mem = np.zeros([test_reg_desc.node.size], np.uint8)
 
         test_reg_desc.AnAddrmap.AnotherRegAt20.write(0x12345678)
         test_reg_desc.AnotherAddrmap.AnotherRegAt20.write(0x87654321)
@@ -72,7 +72,7 @@ class TestPythonExporter(unittest.TestCase):
         """
         Test the accessibility of arrays through the __get_item__ or [] method
         """
-        test_reg_desc = test_register_description(RegIoNull())
+        test_reg_desc = test_register_description(RegIoNoHW())
         test_reg_desc._rio.mem = np.zeros([test_reg_desc.node.size], np.uint8)
         test_reg_desc._rio.verbose = False
 
@@ -127,9 +127,8 @@ class TestPythonExporter(unittest.TestCase):
         """
         Test the accessibility of arrays through the __get_item__ or [] method
         """
-        test_reg_desc = test_register_description(RegIoNull())
-        test_reg_desc._rio.mem = np.empty([test_reg_desc.node.size], np.uint8)
-        test_reg_desc._rio.verbose = False
+        test_reg_desc = test_register_description(RegIoNoHW())
+        test_reg_desc._rio.mem = np.zeros([test_reg_desc.node.size], np.uint8)
 
         test_reg_desc.AnAddrmap.ARegfile[0].ARegInARegFile[0].write(1)
         test_reg_desc.AnAddrmap.ARegfile[0].ARegInARegFile[1].write(2)
@@ -148,9 +147,8 @@ class TestPythonExporter(unittest.TestCase):
         """
         Test the accessibility of memories and arrays of memories
         """
-        test_reg_desc = test_register_description(RegIoNull())
+        test_reg_desc = test_register_description(RegIoNoHW())
         test_reg_desc._rio.mem = np.zeros([test_reg_desc.node.size], np.uint8)
-        test_reg_desc._rio.verbose = False
 
         self.assertTrue(
             np.array_equal(test_reg_desc.Mem64x32.read(), [0]*64))
@@ -180,7 +178,7 @@ class TestPythonExporter(unittest.TestCase):
         """
         Test that the tostr function generates the desired output
         """
-        test_reg_desc = test_register_description(RegIoNull())
+        test_reg_desc = test_register_description(RegIoNoHW())
         test_reg_desc._rio.mem = np.array(list(range(test_reg_desc.node.size)), np.uint8)
         test_reg_desc._rio.verbose = False
 
@@ -254,7 +252,9 @@ class TestPythonExporter(unittest.TestCase):
         self.assertEqual(result, expected)
 
     def test_help(self):
-        test_reg_desc = test_register_description(RegIoNull())
+        test_reg_desc = test_register_description(RegIoNoHW())
+        test_reg_desc._rio.mem = np.zeros([test_reg_desc.node.size], np.uint8)
+        
         old_stdout = sys.stdout
         sys.stdout = mystdout = StringIO()
         test_reg_desc.TwoMemories.help()
@@ -274,13 +274,13 @@ memwidth: 32
         Measure the performance and check if it is suitable
         """
         t = time.time()
-        test_reg_desc = test_register_description(RegIoNull())
+        test_reg_desc = test_register_description(RegIoNoHW())
+
         elapsed = time.time() - t
         print("Model creation time =" + str(elapsed) + "s")
         self.assertLess(elapsed, 0.2)
 
-        test_reg_desc._rio.mem = [0]*test_reg_desc.node.size
-        test_reg_desc._rio.verbose = False
+        test_reg_desc._rio.mem = np.zeros([test_reg_desc.node.size], np.uint8)
 
         access_cnt = 0
         ACCESSES = 10e3
@@ -307,8 +307,8 @@ memwidth: 32
         """
         Test is the selectable class is properly integrated
         """
-        test_reg_desc = test_register_description(RegIoNull())
-        test_reg_desc._rio.mem = [0]*test_reg_desc.node.size
+        test_reg_desc = test_register_description(RegIoNoHW())
+        test_reg_desc._rio.mem = np.zeros([test_reg_desc.node.size], np.uint8)
         test_reg_desc._rio.verbose = False
         
         selector = Selector();
@@ -324,8 +324,8 @@ memwidth: 32
         """
         Test is the selectable class is properly integrated
         """
-        test_reg_desc = test_register_description(RegIoNull())
-        test_reg_desc._rio.mem = [0]*test_reg_desc.node.size
+        test_reg_desc = test_register_description(RegIoNoHW())
+        test_reg_desc._rio.mem = np.zeros([test_reg_desc.node.size], np.uint8)
         test_reg_desc._rio.verbose = False
         
         selector = Selector();
