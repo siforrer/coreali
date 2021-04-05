@@ -1,0 +1,6 @@
+
+
+addrmap top_sys { 
+    logger Logger;
+    i2c_master_core I2c;
+};

@@ -3,3 +3,5 @@ dist
 coreali.egg-info
 build
 tests/generated
+examples/quickstart/regmodel.py
+generated**

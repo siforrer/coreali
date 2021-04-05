@@ -1,0 +1,21 @@
+addrmap i2c_master_core { 
+	default regwidth=8;
+	reg  {	
+		desc = "Clock Prescale register lo-byte";
+		field {sw = rw; hw = r;} VAL[8];
+	} PRERlo@0x00;
+	reg  {	
+		desc = "Clock Prescale register hi-byte";
+		field {sw = rw; hw = r;} VAL[8];
+	} PRERhi@0x01;
+  	reg  {	
+		name = "Control register";
+		field {
+			desc = 
+"EN, I2
+C core enable bit.
+When set to ‘1’, the core is enabled.
+When set to ‘0’, the core is disabled. ";
+			sw = r; hw = r;} EN[7:7];
+	} CTR@0x02;
+};
