@@ -1,20 +1,21 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Mar 11 09:50:05 2021
-
-@author: FSIL
-"""
 import os
 
 import jinja2 as jj
 from systemrdl.node import RootNode, Node, RegNode, AddrmapNode, RegfileNode
 from systemrdl.node import FieldNode, MemNode, AddressableNode
 
+
 class PythonExporter:
+    """ Exporter for a hierarchical register model in python
+    """
+
     def __init__(self):
+        """Create PythonExport class
+        """
 
         loader = jj.ChoiceLoader([
-            jj.FileSystemLoader(os.path.join(os.path.dirname(__file__), "templates")),
+            jj.FileSystemLoader(os.path.join(
+                os.path.dirname(__file__), "templates")),
             jj.PrefixLoader({
                 'base': jj.FileSystemLoader(os.path.join(os.path.dirname(__file__), "templates"))
             }, delimiter=":")
@@ -30,6 +31,12 @@ class PythonExporter:
         self.source_files = []
 
     def export(self, node: Node, path: str):
+        """Export register model to python file
+
+        Args:
+            node (Node): root node of hierarchical model
+            path (str): path of the newly generated register model file
+        """
         if isinstance(node, RootNode):
             node = node.top
         self.top = node
@@ -48,11 +55,10 @@ class PythonExporter:
             'source_files': self.source_files
         }
 
-
         template = self.jj_env.get_template("regmodel.py")
         stream = template.stream(context)
         stream.dump(path)
-        
+
     def _get_class_name(self, node: Node) -> str:
         class_name = node.get_rel_path(
             self.top.parent,
@@ -68,10 +74,10 @@ class PythonExporter:
             obj = self.namespace_db[type_name]
 
             if (obj is None) or (obj is not node.inst.original_def):
-                raise RuntimeError("Namespace collision! Type-name generation is not robust enough to create unique names!")
+                raise RuntimeError(
+                    "Namespace collision! Type-name generation is not robust enough to create unique names!")
 
             return False
 
         self.namespace_db[type_name] = node.inst.original_def
         return True
-
