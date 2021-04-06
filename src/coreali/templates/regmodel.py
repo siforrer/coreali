@@ -13,8 +13,8 @@ class {{get_class_name(node)}}(AccessableNode):
 {% macro class_definition_top_node(node) -%}
 {%- if class_needs_definition(node) %}
 class {{get_class_name(node)}}(AccessableTopNode):
-    def __init__(self, rio):
-        AccessableTopNode.__init__(self, {{source_files}}, rio)
+    def __init__(self, root, rio):
+        AccessableTopNode.__init__(self, root, rio)
         {{child_insts(node)|indent|indent}}
 {% endif -%}
 {%- endmacro -%}

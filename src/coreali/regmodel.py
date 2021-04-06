@@ -227,13 +227,5 @@ class AccessableMemNode(AccessableNode):
         return self._tostr()
     
 class AccessableTopNode(AccessableNode):
-    def __init__(self, rdl_source_files, rio):
-        # TODO check if the rdl and python files match
-        rdlc = RDLCompiler()
-        try:
-            for input_file in rdl_source_files:
-                rdlc.compile_file(input_file)
-            root = rdlc.elaborate()
-        except RDLCompileError:
-            sys.exit(1)
+    def __init__(self, root, rio):
         AccessableNode.__init__(self, root, root.top.get_path(), None, rio)
