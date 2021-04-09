@@ -71,20 +71,6 @@ class AccessableNode(AccessableBaseNode, Selectable):
         self._rio = rio
         self._select = None
 
-
-    def _current_range(self, select):
-        start = 0
-        stop = self.node.array_dimensions[0]
-        step = 1
-        if isinstance(select, slice):
-            if not select.start is None:
-                start = select.start
-            if not select.stop is None:
-                stop = select.stop
-            if not select.step is None:
-                step = select.step
-        return range(start, stop, step)
-
     def _set_current_idx(self, selector):
         n = self.node
         for i in reversed(range(len(selector))):
@@ -186,42 +172,39 @@ class AccessableMemNode(AccessableNode):
 
     def _write(self, start_idx, value):
         word_size = int(self.node.get_property('memwidth') / 8)
-        if isinstance(value, list):
+        if isinstance(value, (list,np.ndarray)):
             self._rio.write_words(self.node.absolute_address+start_idx*word_size, word_size, value)
         else: 
             self._rio.write_word(self.node.absolute_address+start_idx*word_size, word_size, value)
             
     def read(self, start_idx=0, num_elements=None):
         if num_elements is None:
-            assert start_idx == 0
-            num_elements = self.node.get_property('mementries')
+            assert start_idx == 0, "start_idx must be 0 when num_elements is not specified"
+            num_elements = int(self.node.get_property('mementries'))
+        selector = Selector();
+        self._construct_selector(selector.selected)
+        if not selector.data_shape() :
+            self._set_current_idx(selector.selected)
+            return self._read(start_idx, num_elements)
 
-        if self.node.is_array:
-            if isinstance(self._select, int):
-                self.node.current_idx = [self._select]
-                ret = self._read(start_idx, num_elements)
-            else:
-                ret = []
-                for i in self._current_range(self._select):
-                    self.node.current_idx = [i]
-                    ret.append(self._read(start_idx, num_elements))
-            self._select = None
-        else:
-            ret = self._read(start_idx, num_elements)
-        return ret
+        data_shape = selector.data_shape()
+        data_shape.insert(0,num_elements)
+        data = np.empty(data_shape, np.uint64);
+        for flat_idx, sel_idx in enumerate(selector):
+            self._set_current_idx(sel_idx[1])
+            data[np.unravel_index(flat_idx,selector.data_shape())] = self._rio.read_word(self.node.absolute_address, self.node.size)
+        return data
 
     def write(self, start_idx, value):
-        if self.node.is_array:
-            if isinstance(self._select, int):
-                self.node.current_idx = [self._select]
-                self._write(start_idx, value)
-            else:
-                for i in self._current_range(self._select):
-                    self.node.current_idx = [i]
-                    self._write(start_idx, value[i])
-            self._select = None
-        else:
+        selector = Selector();
+        self._construct_selector(selector.selected)
+        if not selector.data_shape() : # single access
+            self._set_current_idx(selector.selected)
             self._write(start_idx, value)
+        else:
+            for flat_idx, sel_idx in enumerate(selector):
+                self._set_current_idx(sel_idx[1])
+                self._write(start_idx, value[flat_idx])
 
     def __str__(self):
         return self._tostr()
