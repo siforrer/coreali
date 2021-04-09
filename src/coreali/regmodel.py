@@ -188,11 +188,11 @@ class AccessableMemNode(AccessableNode):
             return self._read(start_idx, num_elements)
 
         data_shape = selector.data_shape()
-        data_shape.insert(0,num_elements)
+        data_shape.append(num_elements)
         data = np.empty(data_shape, np.uint64);
         for flat_idx, sel_idx in enumerate(selector):
             self._set_current_idx(sel_idx[1])
-            data[np.unravel_index(flat_idx,selector.data_shape())] = self._rio.read_word(self.node.absolute_address, self.node.size)
+            data[np.unravel_index(flat_idx,selector.data_shape())] = self._read(start_idx, num_elements)
         return data
 
     def write(self, start_idx, value):

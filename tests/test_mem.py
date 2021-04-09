@@ -16,7 +16,7 @@ class DummyNode():
 
     @property
     def absolute_address(self):
-        return 40 + self.current_idx[0]*8*4
+        return int(40 + self.current_idx[0]*self.property["mementries"]*self.property["memwidth"]/8)
 
     def get_property(self, key):
         return self.property[key]
@@ -24,7 +24,7 @@ class DummyNode():
 
 class DummyMem(AccessableMemNode):
     def __init__(self):
-        self._select = 0
+        self._select = None
         self._parent = None
         self.node = DummyNode()
         self._rio = RegIoNoHW()
@@ -55,7 +55,7 @@ class TestAccessableMemNode(unittest.TestCase):
     def test_read_array(self):
         mem = DummyMem()
         mem.node.is_array = True
-        mem.array_dimensions = [3]
+        mem.node.array_dimensions = [3]
         
         for i in range(3):
             mem[i].write(0,i+1234567)
@@ -72,12 +72,17 @@ class TestAccessableMemNode(unittest.TestCase):
     def test_write_array(self):
         mem = DummyMem()
         mem.node.is_array = True
-        mem.array_dimensions = [2]
+        mem.node.array_dimensions = [2]
         mem.node.property = {"mementries": 4, 
                          "memwidth" : 8}
 
         arr = np.array([[1,2,3,4],[11,12,13,14]],dtype=np.uint64)
         mem.write(0, arr)    
+        self.assertTrue(np.array_equal(mem[0].read(),[1,2,3,4]))
+        self.assertTrue(np.array_equal(mem[1].read(),[11,12,13,14]))
+        self.assertTrue(np.array_equal(mem._rio.read_words(40,1,4),[1,2,3,4]))
+        self.assertTrue(np.array_equal(mem._rio.mem[40:48], [1,2,3,4,11,12,13,14] ))
+        self.assertTrue(np.array_equal(mem.read(),arr))
 
 if __name__ == '__main__':
     unittest.main()
