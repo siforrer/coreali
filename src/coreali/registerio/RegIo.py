@@ -40,7 +40,7 @@ class RegIo:
             self.write_raw(address+i, [np.mod(word, 256)])
             word /= 256
 
-    def read_words(self, address, word_size, num_words):
+    def read_words(self, address, address_stride, word_size, num_words):
         """Read words starting from address
 
         Args:
@@ -50,10 +50,10 @@ class RegIo:
         """
         ret = np.empty([num_words], np.uint64)
         for i in range(num_words):
-            ret[i] = self.read_word(address+i*word_size, word_size)
+            ret[i] = self.read_word(address+i*address_stride, word_size)
         return ret
 
-    def write_words(self, address, word_size, data):
+    def write_words(self, address, address_stride, word_size, data):
         """Write words starting from address
 
         Args:
@@ -62,4 +62,4 @@ class RegIo:
             data: array of words to be written starting from address
         """
         for idx, value in enumerate(data):
-            self.write_word(address+idx*word_size, word_size, value)
+            self.write_word(address+idx*address_stride, word_size, value)

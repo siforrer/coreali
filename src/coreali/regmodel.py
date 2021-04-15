@@ -98,10 +98,11 @@ class AccessableNode(AccessableBaseNode, Selectable):
             self._set_current_idx(selector.selected)
             return self._rio.read_word(self.node.absolute_address, self.node.size)
         
-        data = np.empty(selector.data_shape(), np.uint64);
-        for flat_idx, sel_idx in enumerate(selector):
-            self._set_current_idx(sel_idx[1])
-            data[np.unravel_index(flat_idx,selector.data_shape())] = self._rio.read_word(self.node.absolute_address, self.node.size)
+        flat_data = np.empty([selector.numel()],dtype=np.uint64)  
+        for _idx, (flat_idx, sel_idx) in enumerate(selector):
+            self._set_current_idx(sel_idx)
+            flat_data[flat_idx:flat_idx+selector.flat_len()] = self._rio.read_words(self.node.absolute_address, self.node.array_stride*selector.selected[-1].step, self.node.size, selector.flat_len())
+        data = flat_data.reshape(selector.data_shape())
         return data
 
     def write(self, value):
@@ -131,9 +132,10 @@ class AccessableNode(AccessableBaseNode, Selectable):
             self._set_current_idx(selector.selected)
             self._rio.write_word(self.node.absolute_address, self.node.size, value)
         else:
-            for flat_idx, sel_idx in enumerate(selector):
-                self._set_current_idx(sel_idx[1])
-                self._rio.write_word(self.node.absolute_address, self.node.size, value[flat_idx])
+            flat_data = np.uint64(value).flatten()
+            for _idx, (flat_idx, sel_idx) in enumerate(selector):
+                self._set_current_idx(sel_idx)
+                self._rio.write_words(self.node.absolute_address, self.node.array_stride*selector.selected[-1].step, self.node.size, flat_data[flat_idx:flat_idx+selector.flat_len()])
             
         
 
@@ -168,16 +170,17 @@ class AccessableMemNode(AccessableNode):
 
     def _read(self, start_idx=0, num_elements=None):
         word_size = int(self.node.get_property('memwidth') / 8)
-        return self._rio.read_words(self.node.absolute_address+start_idx*word_size, word_size, num_elements)
+        return self._rio.read_words(self.node.absolute_address+start_idx*word_size, word_size, word_size, num_elements)
 
     def _write(self, start_idx, value):
         word_size = int(self.node.get_property('memwidth') / 8)
         if isinstance(value, (list,np.ndarray)):
-            self._rio.write_words(self.node.absolute_address+start_idx*word_size, word_size, value)
+            self._rio.write_words(self.node.absolute_address+start_idx*word_size, word_size, word_size, value)
         else: 
-            self._rio.write_word(self.node.absolute_address+start_idx*word_size, word_size, value)
+            self._rio.write_word(self.node.absolute_address+start_idx*word_size, word_size, word_size, value)
             
     def read(self, start_idx=0, num_elements=None):
+        word_size = int(self.node.get_property('memwidth') / 8)
         if num_elements is None:
             assert start_idx == 0, "start_idx must be 0 when num_elements is not specified"
             num_elements = int(self.node.get_property('mementries'))
@@ -187,24 +190,30 @@ class AccessableMemNode(AccessableNode):
             self._set_current_idx(selector.selected)
             return self._read(start_idx, num_elements)
 
-        data_shape = selector.data_shape()
-        data_shape.append(num_elements)
-        data = np.empty(data_shape, np.uint64);
-        for flat_idx, sel_idx in enumerate(selector):
-            self._set_current_idx(sel_idx[1])
-            data[np.unravel_index(flat_idx,selector.data_shape())] = self._read(start_idx, num_elements)
+        selector.selected.append(slice(start_idx,num_elements,1))
+        flat_data = np.empty(selector.numel(), np.uint64)
+        flat_len = selector.flat_len()
+        for idx,(flat_idx, sel_idx) in enumerate(selector):
+            self._set_current_idx(sel_idx[:-1])
+            flat_data[flat_idx:flat_idx+flat_len] = self._rio.read_words(self.node.absolute_address, word_size*selector.selected[-1].step, word_size, flat_len)
+        data = flat_data.reshape(selector.data_shape())
         return data
 
     def write(self, start_idx, value):
+        data = np.uint64(value)
+        word_size = int(self.node.get_property('memwidth') / 8)
         selector = Selector();
         self._construct_selector(selector.selected)
         if not selector.data_shape() : # single access
             self._set_current_idx(selector.selected)
-            self._write(start_idx, value)
+            self._write(start_idx, data)
         else:
-            for flat_idx, sel_idx in enumerate(selector):
-                self._set_current_idx(sel_idx[1])
-                self._write(start_idx, value[flat_idx])
+            selector.selected.append(slice(start_idx,start_idx+data.shape[-1],1))
+            flat_data = np.uint64(value).flatten();
+            flat_len = selector.flat_len()
+            for idx,(flat_idx, sel_idx) in enumerate(selector):
+                self._set_current_idx(sel_idx[:-1])
+                self._rio.write_words(self.node.absolute_address, word_size*selector.selected[-1].step, word_size, flat_data[flat_idx:flat_idx+flat_len])
 
     def __str__(self):
         return self._tostr()

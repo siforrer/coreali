@@ -6,7 +6,8 @@ Created on Mon Mar 29 19:38:56 2021
 @author: silvan
 """
 import sys
-sys.path.insert(0, "../src/")
+if not "../src/" in sys.path:
+    sys.path.insert(0, "../src/")
 import unittest
 import numpy as np
 from coreali.Selector import Selector, Selectable
@@ -78,32 +79,46 @@ class TestSelector(unittest.TestCase):
         selector = Selector()
         selector.selected = [1, slice(2,10,2),slice(0,2,1)]
         
+        expected_flat_idx = [0, 2, 4, 6]
+        expected_flat_len = 2
+        expected_sel_idx = [[1, 2, 0],
+                            [1, 4, 0],
+                            [1, 6, 0],
+                            [1, 8, 0]];
+        
         self.assertEqual(selector.data_shape(), [4, 2])
         self.assertEqual(selector.numel(), 8)
-        
-        for flat_idx, sel_idx in enumerate(selector):
-            self.assertEqual(sel_idx[0][1], flat_idx % 2)
-            self.assertEqual(sel_idx[0][0], int(flat_idx / 2))
-            self.assertEqual(sel_idx[1][0], 1)
-            self.assertEqual(sel_idx[1][1], int(flat_idx / 2)*2+2)
-            self.assertEqual(sel_idx[1][2], flat_idx % 2)
+        self.assertEqual(selector.flat_len(), expected_flat_len)        
+        flat_data = np.empty([selector.numel()],dtype=np.uint64)            
+        i = 0
+        for _idx, (flat_idx, sel_idx) in enumerate(selector):
+            self.assertEqual(flat_idx, expected_flat_idx[i])
+            self.assertTrue(np.array_equal(sel_idx, expected_sel_idx[i]))
+            flat_data[flat_idx:flat_idx+selector.flat_len()] = np.array([flat_idx, flat_idx+1])
+            i+=1
+        data = flat_data.reshape(selector.data_shape())
+        expected_data = np.array([[0,1],[2,3],[4,5],[6,7]])
+        self.assertTrue(np.array_equal(data,expected_data))
         
     def test_usecase(self):
         a = A()
-        a.b.c
-        
+        a.b.c        
         selector = Selector()
         a[0:2].b[0].c[4:10]._construct_selector(selector.selected)
         self.assertEqual(selector.selected,[slice(0,2,1), 0, slice(4,10,1)])
         self.assertEqual(selector.data_shape(), [2, 6])
-        data = np.empty(selector.data_shape(), np.uint64);
-        for flat_idx, sel_idx in enumerate(selector):
-            data[np.unravel_index(flat_idx,selector.data_shape())] = flat_idx
+        flat_data = np.empty([selector.numel()],dtype=np.uint64)            
+        for _idx, (flat_idx, sel_idx) in enumerate(selector):
+            flat_data[flat_idx:flat_idx+selector.flat_len()] = flat_idx+np.arange(selector.flat_len(),dtype=np.uint64)
+        data = flat_data.reshape(selector.data_shape())
         self.assertTrue((data[0] == [ 0, 1, 2, 3, 4, 5]).all())
         self.assertTrue((data[1] == [ 6,7,8,9,10,11]).all())
-        for flat_idx, sel_idx in enumerate(selector):
-            addr = np.sum(sel_idx[1]*[100,10,1])
-            data[np.unravel_index(flat_idx,selector.data_shape())] = addr 
+        flat_data = np.empty([selector.numel()],dtype=np.uint64)            
+        for _idx, (flat_idx, sel_idx) in enumerate(selector):
+            addr = np.sum(sel_idx*[100,10,1])
+            flat_data[flat_idx:flat_idx+selector.flat_len()] = addr+np.arange(selector.flat_len(),dtype=np.uint64)
+        data = flat_data.reshape(selector.data_shape())
+        print(data)
         self.assertTrue((data[0] == [ 4,5,6,7,8,9]).all())
         self.assertTrue((data[1] == [ 104,105,106,107,108,109]).all())
 if __name__ == '__main__':

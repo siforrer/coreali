@@ -84,6 +84,9 @@ class Selector():
             ret *= n
         return ret
     
+    def flat_len(self):
+        return self.numel_of_slice(self.selected[-1])
+    
     def __iter__(self):
         tree_idx = np.empty(len(self.selected), int)
         slice_idx = []
@@ -93,11 +96,11 @@ class Selector():
             else:
                 tree_idx[i] = val
         dim = self.data_shape()
-        for flat_idx in range(self.numel()):
+        for flat_idx in range(0,self.numel(),self.numel_of_slice(self.selected[-1])):
             data_idx = np.unravel_index(flat_idx,dim)
             for pos_in_data, pos_in_sel in enumerate(slice_idx):
                 tree_idx[pos_in_sel] = self.idx_of_slice(self.selected[pos_in_sel], data_idx[pos_in_data])
-            yield data_idx, tree_idx
+            yield flat_idx, tree_idx
             
     
         
