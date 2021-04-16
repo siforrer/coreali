@@ -25,6 +25,15 @@ addrmap an_addrmap {
 			field {sw = rw; hw = r;} VAL[32];
 		} ARegInARegFile[4];
 	} ARegfile[2];
+
+	regfile {
+		reg{
+			field {sw = rw; hw = r;} VAL[32];
+		} AReg;
+		reg{
+			field {sw = rw; hw = r;} VAL[32];
+		} AnotherReg;
+	} AnotherRegfile[2];
 };
 
 
