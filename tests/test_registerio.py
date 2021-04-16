@@ -59,7 +59,7 @@ class TestRegisterIo(unittest.TestCase):
         rio = RegIoNoHW()
         rio.mem = np.zeros([40],np.uint8)        
         
-        rio.write_words(12, 4, [1,2,3])
+        rio.write_words(12, 4, 4, [1,2,3])
 
         self.assertEqual(rio.read_word(8,4),0)
         self.assertEqual(rio.read_word(12,4),1)
@@ -71,10 +71,10 @@ class TestRegisterIo(unittest.TestCase):
         rio = RegIoNoHW()
         rio.mem = np.zeros([64],np.uint8)        
         
-        rio.write_words(0, 4, np.arange(0,16))
+        rio.write_words(0, 4, 4, np.arange(0,16))
 
         self.assertTrue(np.array_equal(
-                rio.read_words(10*4,4,6),np.arange(10,16)))
+                rio.read_words(10*4,4,4,6),np.arange(10,16)))
 
 
 if __name__ == '__main__':

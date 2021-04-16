@@ -48,11 +48,11 @@ class TestAccessableMemNode(unittest.TestCase):
         self.assertEqual(mem._rio.read_word(44,4),2345678)
 
         mem.write(6,[10001, 10002])
-        self.assertTrue(np.array_equal(mem._rio.read_words(40+6*4,4,2),[10001, 10002]))
+        self.assertTrue(np.array_equal(mem._rio.read_words(40+6*4,4,4,2),[10001, 10002]))
         mem.write(0,np.arange(8,dtype=np.uint64))
-        self.assertTrue(np.array_equal(mem._rio.read_words(40,4,8),np.arange(8,dtype=np.uint32)))
+        self.assertTrue(np.array_equal(mem._rio.read_words(40,4,4,8),np.arange(8,dtype=np.uint32)))
 
-    def test_read_array(self):
+    def test_write_array(self):
         mem = DummyMem()
         mem.node.is_array = True
         mem.node.array_dimensions = [3]
@@ -65,22 +65,23 @@ class TestAccessableMemNode(unittest.TestCase):
             self.assertEqual(mem._rio.read_word(i*4*8+44,4),i+2345678)
     
             mem[i].write(6,[i+10001, i+10002])
-            self.assertTrue(np.array_equal(mem[i]._rio.read_words(i*4*8+40+6*4,4,2),[i+10001, i+10002]))
+            self.assertTrue(np.array_equal(mem[i]._rio.read_words(i*4*8+40+6*4,4,4,2),[i+10001, i+10002]))
             mem[i].write(0,i+np.arange(8,dtype=np.uint64))
-            self.assertTrue(np.array_equal(mem[i]._rio.read_words(i*4*8+40,4,8),i+np.arange(8,dtype=np.uint32)))
+            self.assertTrue(np.array_equal(mem[i]._rio.read_words(i*4*8+40,4,4,8),i+np.arange(8,dtype=np.uint32)))
     
-    def test_write_array(self):
+    def test_read_array(self):
         mem = DummyMem()
         mem.node.is_array = True
         mem.node.array_dimensions = [2]
         mem.node.property = {"mementries": 4, 
                          "memwidth" : 8}
+        mem.node.current_idx = [0]
 
         arr = np.array([[1,2,3,4],[11,12,13,14]],dtype=np.uint64)
         mem.write(0, arr)    
         self.assertTrue(np.array_equal(mem[0].read(),[1,2,3,4]))
         self.assertTrue(np.array_equal(mem[1].read(),[11,12,13,14]))
-        self.assertTrue(np.array_equal(mem._rio.read_words(40,1,4),[1,2,3,4]))
+        self.assertTrue(np.array_equal(mem._rio.read_words(40,1,1,4),[1,2,3,4]))
         self.assertTrue(np.array_equal(mem._rio.mem[40:48], [1,2,3,4,11,12,13,14] ))
         self.assertTrue(np.array_equal(mem.read(),arr))
 
