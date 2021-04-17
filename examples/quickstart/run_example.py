@@ -1,24 +1,25 @@
+""" Simple Example using coreali to access a register model. Needs no h^ardware"""
 
-import sys
+# Import dependencies and compile register model with systemrdl-compiler
 from systemrdl import RDLCompiler
-from coreali import PythonExporter
-from coreali.registerio import RegIoNoHW
-
-# Compile register model with systemrdl-compiler
+import coreali 
+import numpy as np
 rdlc = RDLCompiler()
-rdlc.compile_file("../systemrdl/i2c_master_core.rdl")
+rdlc.compile_file("../systemrdl/logger.rdl")
 root = rdlc.elaborate()
 
 # Generate hierarchical register model 
-pythonExporter = PythonExporter()
-pythonExporter.source_files = ["../systemrdl/i2c_master_core.rdl"]
+pythonExporter = coreali.PythonExporter()
 pythonExporter.export(root, "generated_regmodel.py")
-sys.path.insert(0, "generated/python/")
+
+# Create the generated register model object
+import generated_regmodel
+rio = coreali.registerio.RegIoNoHW(np.zeros([256], np.uint8()))
+logger = generated_regmodel.logger(root, rio)
 
 # Use the generated register model
-import generated_regmodel
-i2c = generated_regmodel.i2c_master_core(root, RegIoNoHW())
-
-print(i2c)
-
-i2c.PRERlo.read()
+logger.Ctrl.read()
+logger.LogMem.write(0,[1,2,3])
+logger.LogMem.read()
+logger.LogMem[1].write(0,[11,12,13])
+print(logger)

@@ -319,6 +319,8 @@ memwidth: 32
             access_cnt += 1
             test_reg_desc.AnAddrmap.ARepeatedReg[1:3].read()
             access_cnt += 2
+            test_reg_desc.Mem64x32.read(10, 20)
+            access_cnt += 10
 
         elapsed = time.time() - t
         accesses_per_second = ACCESSES/elapsed
