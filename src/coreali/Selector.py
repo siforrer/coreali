@@ -62,9 +62,11 @@ class Selectable():
 
 class Selector():
     
-    def __init__(self):
-        self.selected = []
-    
+    def __init__(self,selected=None):
+        if selected is None:
+            selected = []
+        self.selected = selected;
+        
     def data_shape(self):
         dimension = []
         for _idx, val in enumerate(self.selected):
@@ -85,7 +87,9 @@ class Selector():
         return ret
     
     def flat_len(self):
-        return self.numel_of_slice(self.selected[-1])
+        if isinstance(self.selected[-1],slice):
+            return self.numel_of_slice(self.selected[-1])
+        return 1
     
     def __iter__(self):
         tree_idx = np.empty(len(self.selected), int)
@@ -96,12 +100,14 @@ class Selector():
             else:
                 tree_idx[i] = val
         dim = self.data_shape()
-        for flat_idx in range(0,self.numel(),self.numel_of_slice(self.selected[-1])):
+        for flat_idx in range(0,self.numel(),self.flat_len()):
             data_idx = np.unravel_index(flat_idx,dim)
             for pos_in_data, pos_in_sel in enumerate(slice_idx):
                 tree_idx[pos_in_sel] = self.idx_of_slice(self.selected[pos_in_sel], data_idx[pos_in_data])
             yield flat_idx, tree_idx
-            
+    
+    def __str__(self):
+        return "selected = " + str(self.selected) + ", data shape = " + str(self.data_shape())
     
         
 

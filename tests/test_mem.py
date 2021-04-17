@@ -5,6 +5,7 @@ if not "../src/" in sys.path:
     sys.path.insert(0, "../src/")
 from coreali.regmodel import AccessableMemNode
 from coreali.registerio import RegIoNoHW
+from coreali.Selector import Selector
 
 class DummyNode():
     def __init__(self):
@@ -34,10 +35,51 @@ class DummyMem(AccessableMemNode):
     
         
 class TestAccessableMemNode(unittest.TestCase):
+    
+    def test_prepare_read(self):
+        mem = DummyMem()
+        selector = Selector([0,0]) 
+        selector, flat_data, flat_len = mem._prepare_read(selector, 10,[])
+        self.assertEqual(flat_len,10)
+        self.assertTrue(np.array_equal(flat_data.shape, [10]))
+        self.assertEqual(selector.selected[0],0)
+        self.assertEqual(selector.selected[1],0)
+        self.assertEqual(selector.selected[2],slice(0,10,1))
+        
+        selector = Selector([1]) 
+        selector, flat_data, flat_len = mem._prepare_read(selector,10, [3])
+        self.assertEqual(flat_len,1)
+        self.assertTrue(np.array_equal(flat_data.shape, [1]))
+        self.assertEqual(selector.selected[0],1)
+        self.assertEqual(selector.selected[1],slice(3,4,1))
+        
+        selector = Selector([1]) 
+        selector, flat_data, flat_len = mem._prepare_read(selector,10,[20,30,2])
+        self.assertEqual(flat_len,5)
+        self.assertTrue(np.array_equal(flat_data.shape, [5]))
+        self.assertEqual(selector.selected[0],1)
+        self.assertEqual(selector.selected[1],slice(20,30,2))        
+       
+        selector = Selector([slice(3,5,1)]) 
+        selector, flat_data, flat_len = mem._prepare_read(selector,10,[20,30,2])
+        self.assertEqual(flat_len,5)
+        self.assertTrue(np.array_equal(flat_data.shape, [10]))
+        self.assertTrue(np.array_equal(selector.data_shape(), [2, 5]))
+        self.assertEqual(selector.selected[0],slice(3,5,1))
+        self.assertEqual(selector.selected[1],slice(20,30,2))     
+        
+        selector = Selector([0]) 
+        selector, flat_data, flat_len = mem._prepare_read(selector,10,[4,8])
+        self.assertEqual(flat_len,4)
+        self.assertTrue(np.array_equal(flat_data.shape, [4]))
+        self.assertTrue(np.array_equal(selector.data_shape(), [4]))
+        self.assertEqual(selector.selected[0],0)
+        self.assertEqual(selector.selected[1],slice(4,8,1))     
+
     def test_read(self):
         mem = DummyMem()
         self.assertTrue(np.array_equal(mem.read(),10+np.arange(8)))
-        self.assertTrue(np.array_equal(mem.read(4,4),10+np.arange(4,8,1)))
+        self.assertTrue(np.array_equal(mem.read(4,8),10+np.arange(4,8,1)))
         
     def test_write(self):
         mem = DummyMem()

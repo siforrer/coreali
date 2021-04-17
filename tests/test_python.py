@@ -93,6 +93,15 @@ class TestPythonExporter(unittest.TestCase):
                 0, 0, 2, 0, 4, 0, 6, 0, 0, 0]))
         self.assertTrue(
             np.array_equal(test_reg_desc.AnotherAddrmap.TenRegs[2:7:2].read(), [2, 4, 6]))
+        
+        test_reg_desc.AnAddrmap.AnotherRegfile[0].AReg.write(1111)
+        test_reg_desc.AnAddrmap.AnotherRegfile[1].AReg.write(2222)
+        self.assertTrue(
+            np.array_equal(test_reg_desc.AnAddrmap.AnotherRegfile.AReg.read(),[1111,2222]))
+        
+        test_reg_desc.AnAddrmap.AnotherRegfile.AnotherReg.write([1,2])
+        self.assertEqual(test_reg_desc.AnAddrmap.AnotherRegfile[0].AnotherReg.read(),1)
+        self.assertEqual(test_reg_desc.AnAddrmap.AnotherRegfile[1].AnotherReg.read(),2)
 
     def test_arrays_of_array(self):
         """
@@ -133,7 +142,7 @@ class TestPythonExporter(unittest.TestCase):
             np.array_equal(test_reg_desc.Mem64x32.read(), list(range(0, 64, 1))))
 
         self.assertTrue(
-            np.array_equal(test_reg_desc.Mem64x32.read(10, 30), list(range(10, 40, 1))))
+            np.array_equal(test_reg_desc.Mem64x32.read(10, 40), list(range(10, 40, 1))))
 
         test_reg_desc.ABlockWithMemory.AMemory.write(0, list(range(0, 128, 2)))
         self.assertTrue(
