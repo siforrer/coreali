@@ -1,0 +1,11 @@
+site_name: Coreali
+theme:
+  name: "material"
+plugins:
+- mkdocstrings:
+    default_handler: python
+    handlers:
+      python:
+        setup_commands:
+          - import sys
+          - sys.path.append("src")

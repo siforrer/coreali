@@ -31,10 +31,10 @@ class PythonExporter:
         self.source_files = []
 
     def export(self, node: Node, path: str):
-        """Export register model to python file
+        """Export register model to python file.
 
         Args:
-            node (Node): root node of hierarchical model
+            node (Node): root node of hierarchical model. This node can be compiled with the systemrdl-compiler.
             path (str): path of the newly generated register model file
         """
         if isinstance(node, RootNode):
