@@ -1,21 +1,31 @@
 from invoke import task
 import shutil
 
+if shutil.which("python") is None:
+    PYTHON = "python3"
+else:
+    PYTHON = "python"
+
 @task
 def clean(c):
     shutil.rmtree("./dist")
     shutil.rmtree("./build")
+    shutil.rmtree("./site")
 
 @task
 def test(c):
     with c.cd('tests'):
-        c.run('python -m unittest')
+        c.run(PYTHON + " -m unittest")
+
+@task
+def docs(c):
+    c.run("mkdocs build")
 
 @task
 def build(c, docs=False):
-    c.run("python -m build")
+    c.run(PYTHON + " -m build")
 
-@task(test, build)
+@task(test, docs, build)
 def all(c):
     pass
 
