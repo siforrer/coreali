@@ -4,8 +4,10 @@
 from systemrdl import RDLCompiler
 import coreali 
 import numpy as np
+import os
+root = os.path.dirname(__file__)+"/"
 rdlc = RDLCompiler()
-rdlc.compile_file("../systemrdl/logger.rdl")
+rdlc.compile_file(root+"../systemrdl/logger.rdl")
 root = rdlc.elaborate()
 
 # Generate hierarchical register model 

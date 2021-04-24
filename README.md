@@ -77,4 +77,4 @@ The registers can now be read and written by hierarchically accessing them. With
 When using the print function on a register, register node or address map all registers and field will be readout and printed as a string.
 
 The full source code of this example can be found in
-[examples/quickstart/](../blob/master/LICENSE)
+[examples/quickstart/](examples/quickstart/)

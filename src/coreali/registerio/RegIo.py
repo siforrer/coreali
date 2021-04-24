@@ -41,10 +41,11 @@ class RegIo:
             word /= 256
 
     def read_words(self, address, address_stride, word_size, num_words):
-        """Read words starting from address
+        """Read multiple words starting from address
 
         Args:
-            address: address of register in byte
+            address: start address in byte
+            address_stride: address increment for every word (usually the word_size)
             word_size: size of one word in byte
             num_words: number of words that are read
         """
@@ -54,12 +55,13 @@ class RegIo:
         return ret
 
     def write_words(self, address, address_stride, word_size, data):
-        """Write words starting from address
+        """Write multiple words starting from address
 
         Args:
-            address: address of register in byte
+            address: start address in byte
+            address_stride: address increment for every word (usually the word_size)
             word_size: size of one word in byte
-            data: array of words to be written starting from address
+            data: array of words to be written
         """
         for idx, value in enumerate(data):
             self.write_word(address+idx*address_stride, word_size, value)
