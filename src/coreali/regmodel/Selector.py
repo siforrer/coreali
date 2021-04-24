@@ -1,10 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Sat Mar 27 18:18:37 2021
-
-@author: silvan
-"""
 import numpy as np
 
 class Selectable():

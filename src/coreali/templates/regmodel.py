@@ -1,20 +1,20 @@
-from coreali.regmodel import AccessableNode,AccessableFieldNode,AccessableMemNode, AccessableTopNode
+from coreali.regmodel import Field,Memory, Register, RegisterFile, SelectableComponent, RegisterModel
 
 
 {% macro class_definition(node) -%}
 {%- if class_needs_definition(node) %}
-class {{get_class_name(node)}}(AccessableNode):
+class {{get_class_name(node)}}(SelectableComponent):
     def __init__(self, root, path, parent, rio):
-        AccessableNode.__init__(self,root, path, parent, rio)
+        SelectableComponent.__init__(self,root, path, parent, rio)
         {{child_insts(node)|indent|indent}}
 {% endif -%}
 {%- endmacro -%}
 
 {% macro class_definition_top_node(node) -%}
 {%- if class_needs_definition(node) %}
-class {{get_class_name(node)}}(AccessableTopNode):
+class {{get_class_name(node)}}(RegisterModel):
     def __init__(self, root, rio):
-        AccessableTopNode.__init__(self, root, rio)
+        RegisterModel.__init__(self, root, rio)
         {{child_insts(node)|indent|indent}}
 {% endif -%}
 {%- endmacro -%}
@@ -22,9 +22,9 @@ class {{get_class_name(node)}}(AccessableTopNode):
 {%- macro child_insts(node) -%}
 {%- for child in node.children() -%}
     {%- if isinstance(child, (FieldNode)) -%}
-self.{{child.inst_name}} = AccessableFieldNode(self._root, self.node.get_path(empty_array_suffix="") + ".{{child.inst_name}}", self)
+self.{{child.inst_name}} = Field(self._root, self.node.get_path(empty_array_suffix="") + ".{{child.inst_name}}", self)
     {%- elif isinstance(child, (MemNode)) -%}
-self.{{child.inst_name}} = AccessableMemNode(self._root, self.node.get_path(empty_array_suffix="") + ".{{child.inst_name}}", self, rio)
+self.{{child.inst_name}} = Memory(self._root, self.node.get_path(empty_array_suffix="") + ".{{child.inst_name}}", self, rio)
     {%- else -%}
 self.{{child.inst_name}} = {{get_class_name(child)}}(self._root, self.node.get_path(empty_array_suffix="") + ".{{child.inst_name}}", self, rio)
     {%- endif %}
@@ -40,7 +40,7 @@ self.{{child.inst_name}} = {{get_class_name(child)}}(self._root, self.node.get_p
 {%- endmacro -%}
 
 {%- macro child_def(node) -%}
-    {%- if isinstance(node, (FieldNode, RegNode, RegfileNode, AddrmapNode)) -%}
+    {%- if isinstance(node, (RegNode, RegfileNode, AddrmapNode)) -%}
 		{{class_definition(node)}}
     {%- endif -%}
 {%- endmacro -%}

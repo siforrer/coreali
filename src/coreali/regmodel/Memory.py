@@ -1,0 +1,79 @@
+import numpy as np
+from .SelectableComponent import SelectableComponent
+from .Selector import Selectable,Selector
+
+class Memory(SelectableComponent):
+    def __init__(self, root, path, parent, rio):
+        SelectableComponent.__init__(self, root, path, parent, rio)
+
+    def _read(self, start_idx=0, num_elements=None):
+        word_size = int(self.node.get_property('memwidth') / 8)
+        return self._rio.read_words(self.node.absolute_address+start_idx*word_size, word_size, word_size, num_elements)
+
+
+    def _prepare_read(self, selector, mementries, args):
+        if len(args) == 0:
+            start = 0
+            stop = mementries
+            step = 1
+        elif len(args) == 3:
+            start = args[0]
+            stop = args[1]
+            step = args[2]
+        elif len(args) == 1:
+            start = args[0]
+            stop = start+1
+            step = 1
+        elif len(args) == 2:
+            start = args[0]
+            stop = args[1]
+            step = 1            
+        selector.selected.append(slice(start,stop,step))
+        flat_data = np.empty(selector.numel(), np.uint64)
+        flat_len = selector.flat_len()
+        return selector, flat_data, flat_len
+        
+        
+    def read(self, *args):
+        word_size = int(self.node.get_property('memwidth') / 8)
+        mementries = self.node.get_property('mementries')
+        selector = Selector()
+        self._construct_selector(selector.selected)
+        arglist = []
+        for x in args:
+            arglist.append(x)
+        selector, flat_data, flat_len = self._prepare_read(selector, mementries,arglist)
+
+        for idx,(flat_idx, sel_idx) in enumerate(selector):
+            self._set_current_idx(sel_idx[:-1])
+            flat_data[flat_idx:flat_idx+flat_len] = self._rio.read_words(self.node.absolute_address+sel_idx[-1]*word_size, word_size*selector.selected[-1].step, word_size, flat_len)
+        data = flat_data.reshape(selector.data_shape())
+        return data
+
+
+    def _prepare_write(start_idx, value,selector):
+        data = np.uint64(value)
+        if np.isscalar(data):
+            data = np.uint64([data])
+        selector.selected.append(slice(start_idx,start_idx+data.shape[-1],1))
+        flat_data = np.uint64(value).flatten();
+        flat_len = selector.flat_len()
+        return selector, flat_data, flat_len
+        
+        
+    def write(self, start_idx, value):
+        data = np.uint64(value)
+        if np.isscalar(data):
+            data = np.uint64([data])
+        word_size = int(self.node.get_property('memwidth') / 8)
+        selector = Selector();
+        self._construct_selector(selector.selected)
+        selector.selected.append(slice(start_idx,start_idx+data.shape[-1],1))
+        flat_data = np.uint64(value).flatten();
+        flat_len = selector.flat_len()
+        for idx,(flat_idx, sel_idx) in enumerate(selector):
+            self._set_current_idx(sel_idx[:-1])
+            self._rio.write_words(self.node.absolute_address+sel_idx[-1]*word_size, word_size*selector.selected[-1].step, word_size, flat_data[flat_idx:flat_idx+flat_len])
+
+    def __str__(self):
+        return self._tostr()

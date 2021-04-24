@@ -10,7 +10,7 @@ if not "../src/" in sys.path:
     sys.path.insert(0, "../src/")
 import unittest
 import numpy as np
-from coreali.Selector import Selector, Selectable
+from coreali.regmodel import Selector, Selectable
 
 
     

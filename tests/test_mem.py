@@ -3,9 +3,8 @@ import numpy as np
 import sys
 if not "../src/" in sys.path:
     sys.path.insert(0, "../src/")
-from coreali.regmodel import AccessableMemNode
+from coreali.regmodel import Memory,Selector
 from coreali.registerio import RegIoNoHW
-from coreali.Selector import Selector
 
 class DummyNode():
     def __init__(self):
@@ -23,7 +22,7 @@ class DummyNode():
         return self.property[key]
     
 
-class DummyMem(AccessableMemNode):
+class DummyMem(Memory):
     def __init__(self):
         self._select = None
         self._parent = None

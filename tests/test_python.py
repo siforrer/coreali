@@ -5,7 +5,7 @@ import numpy as np
 from io import StringIO
 from regmodel_for_testing import root
 from coreali.registerio import RegIoNoHW
-from coreali.Selector import Selector
+from coreali.regmodel import Selector
 from test_register_description import test_register_description
 
 
