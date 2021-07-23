@@ -11,36 +11,8 @@ class RegIo:
     please see the RegIoNoHW class.
     """
 
-    def read_word(self, address, word_size):
-        """Read a single word
 
-        Args:
-            address: address of register in byte
-            word_size: size of word in byte
-
-        Returns:
-            np.uint64: value of word at address
-        """
-        ret = np.uint64(0)
-        raw_bytes = self.read_raw(address, word_size)
-        for i in range(word_size-1, -1, -1):
-            ret *= np.uint64(2**8)
-            ret += raw_bytes[i]
-        return np.uint64(ret)
-
-    def write_word(self, address, word_size, word):
-        """Write a single word
-
-        Args:
-            address: address of register in byte
-            word_size: size of word in byte
-            word: word that is written to locoation with address
-        """
-        for i in range(word_size):
-            self.write_raw(address+i, [np.mod(word, 256)])
-            word /= 256
-
-    def read_words(self, address, address_stride, word_size, num_words):
+    def read_words(self, address, word_size, address_stride=0,  num_words=1): # TODO swap position of word_size with address_stride
         """Read multiple words starting from address
 
         Args:
@@ -49,12 +21,9 @@ class RegIo:
             word_size: size of one word in byte
             num_words: number of words that are read
         """
-        ret = np.empty([num_words], np.uint64)
-        for i in range(num_words):
-            ret[i] = self.read_word(address+i*address_stride, word_size)
-        return ret
+        assert False, "not implemented"
 
-    def write_words(self, address, address_stride, word_size, data):
+    def write_words(self, address, word_size, address_stride,  data):
         """Write multiple words starting from address
 
         Args:
@@ -63,5 +32,4 @@ class RegIo:
             word_size: size of one word in byte
             data: array of words to be written
         """
-        for idx, value in enumerate(data):
-            self.write_word(address+idx*address_stride, word_size, value)
+        assert False, "not implemented"

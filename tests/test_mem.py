@@ -83,10 +83,10 @@ class TestAccessableMemNode(unittest.TestCase):
     def test_write(self):
         mem = DummyMem()
         mem.write(0,1234567)
-        self.assertEqual(mem._rio.read_word(40,4),1234567)
+        self.assertEqual(mem._rio.read_words(40,4)[0],1234567)
         
         mem.write(1,2345678)
-        self.assertEqual(mem._rio.read_word(44,4),2345678)
+        self.assertEqual(mem._rio.read_words(44,4)[0],2345678)
 
         mem.write(6,[10001, 10002])
         self.assertTrue(np.array_equal(mem._rio.read_words(40+6*4,4,4,2),[10001, 10002]))
@@ -100,10 +100,10 @@ class TestAccessableMemNode(unittest.TestCase):
         
         for i in range(3):
             mem[i].write(0,i+1234567)
-            self.assertEqual(mem._rio.read_word(i*4*8+40,4),i+1234567)
+            self.assertEqual(mem._rio.read_words(i*4*8+40,4)[0],i+1234567)
             
             mem[i].write(1,i+2345678)
-            self.assertEqual(mem._rio.read_word(i*4*8+44,4),i+2345678)
+            self.assertEqual(mem._rio.read_words(i*4*8+44,4)[0],i+2345678)
     
             mem[i].write(6,[i+10001, i+10002])
             self.assertTrue(np.array_equal(mem[i]._rio.read_words(i*4*8+40+6*4,4,4,2),[i+10001, i+10002]))

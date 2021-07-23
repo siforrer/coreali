@@ -1,5 +1,6 @@
 from invoke import task
 import shutil
+import os
 
 if shutil.which("python") is None:
     PYTHON = "python3"
@@ -8,9 +9,9 @@ else:
 
 @task
 def clean(c):
-    shutil.rmtree("./dist")
-    shutil.rmtree("./build")
-    shutil.rmtree("./site")
+    for clean_dir in ["./build","./site"]:
+        if os.path.isdir(clean_dir):
+            shutil.rmtree(clean_dir)
 
 @task
 def test(c):

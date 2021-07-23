@@ -162,12 +162,12 @@ class TestPythonExporter(unittest.TestCase):
             0, [list(range(100, 164, 1)), list(range(200, 264, 1))])
         
         test_reg_desc.TwoMemories.node.current_idx = [0]
-        self.assertEqual(test_reg_desc._rio.read_word(test_reg_desc.TwoMemories.node.absolute_address,4),100)
-        self.assertEqual(test_reg_desc._rio.read_word(test_reg_desc.TwoMemories.node.absolute_address+10*4,4),110)
+        self.assertEqual(test_reg_desc._rio.read_words(test_reg_desc.TwoMemories.node.absolute_address,4)[0],100)
+        self.assertEqual(test_reg_desc._rio.read_words(test_reg_desc.TwoMemories.node.absolute_address+10*4,4)[0],110)
 
         test_reg_desc.TwoMemories.node.current_idx = [1]
-        self.assertEqual(test_reg_desc._rio.read_word(test_reg_desc.TwoMemories.node.absolute_address,4),200)
-        self.assertEqual(test_reg_desc._rio.read_word(test_reg_desc.TwoMemories.node.absolute_address+10*4,4),210)
+        self.assertEqual(test_reg_desc._rio.read_words(test_reg_desc.TwoMemories.node.absolute_address,4)[0],200)
+        self.assertEqual(test_reg_desc._rio.read_words(test_reg_desc.TwoMemories.node.absolute_address+10*4,4)[0],210)
         
     def test_mem_read(self):
         test_reg_desc = test_register_description(root, RegIoNoHW())

@@ -36,7 +36,7 @@ class SelectableComponent(Component, Selectable):
         self._construct_selector(selector.selected)
         if not selector.data_shape() :
             self._set_current_idx(selector.selected)
-            return self._rio.read_word(self.node.absolute_address, self.node.size)
+            return self._rio.read_words(self.node.absolute_address, self.node.size)[0]
         
         flat_data = np.empty([selector.numel()],dtype=np.uint64)  
         for _idx, (flat_idx, sel_idx) in enumerate(selector):
@@ -45,7 +45,7 @@ class SelectableComponent(Component, Selectable):
                 array_stride = self.node.array_stride*selector.selected[-1].step
             else:
                 array_stride = self.node.size
-            flat_data[flat_idx:flat_idx+selector.flat_len()] = self._rio.read_words(self.node.absolute_address, array_stride, self.node.size, selector.flat_len())
+            flat_data[flat_idx:flat_idx+selector.flat_len()] = self._rio.read_words(self.node.absolute_address, self.node.size, array_stride, selector.flat_len())
         data = flat_data.reshape(selector.data_shape())
         return data
 
@@ -74,7 +74,7 @@ class SelectableComponent(Component, Selectable):
         self._construct_selector(selector.selected)
         if not selector.data_shape() : # single access
             self._set_current_idx(selector.selected)
-            self._rio.write_word(self.node.absolute_address, self.node.size, value)
+            self._rio.write_words(self.node.absolute_address, self.node.size, self.node.size, [value])
         else:
             flat_data = np.uint64(value).flatten()
             for _idx, (flat_idx, sel_idx) in enumerate(selector):
@@ -83,7 +83,7 @@ class SelectableComponent(Component, Selectable):
                     array_stride = self.node.array_stride*selector.selected[-1].step
                 else:
                     array_stride = self.node.size
-                self._rio.write_words(self.node.absolute_address, array_stride, self.node.size, flat_data[flat_idx:flat_idx+selector.flat_len()])
+                self._rio.write_words(self.node.absolute_address, self.node.size, array_stride, flat_data[flat_idx:flat_idx+selector.flat_len()])
             
         
 
