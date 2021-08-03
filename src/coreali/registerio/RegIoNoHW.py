@@ -25,7 +25,7 @@ class RegIoNoHW(RegIo):
         """
         if not self.mem is None:
             for i in range(len(data)):
-                self.mem[address+i] = data[i]
+                self.mem[int(address/self.mem.itemsize)+i] = data[i]
 
     def _read_raw(self, address, num_bytes):
         """Read raw bytes
@@ -37,11 +37,7 @@ class RegIoNoHW(RegIo):
         Returns:
             ndarray: array of read bytes
         """
-        ret = np.empty([num_bytes], np.uint8)
-        if not self.mem is None:
-            for i in range(num_bytes):
-                ret[i] = self.mem[address+i]
-        return ret
+        return self.mem.tobytes()[address:address+num_bytes]
 
     def _read_word(self, address, word_size):
         """Read a single word
@@ -68,10 +64,22 @@ class RegIoNoHW(RegIo):
             word_size: size of word in byte
             word: word that is written to locoation with address
         """
-        for i in range(word_size):
-            self._write_raw(address+i, [np.mod(word, 256)])
+        for i in range(int(word_size/self.mem.itemsize)):
+            self._write_raw(address+i, [np.mod(word, 2**(self.mem.itemsize*8))])
             word /= 256
 
+    def _is_native_access(self, address, word_size, address_stride,  num_words):
+        return word_size == self.mem.itemsize and (address % word_size) == 0
+    
+    def _prepare_native_access(self, address, word_size, address_stride,  num_words):
+        start = int(address/word_size)
+        if num_words > 1:
+            step = int(address_stride/word_size)
+        else:
+            step = 1
+        stop = start + num_words*step
+        return start,stop,step
+    
     def read_words(self, address, word_size, address_stride=0,  num_words=1):
         """Read multiple words starting from address
 
@@ -81,6 +89,9 @@ class RegIoNoHW(RegIo):
             word_size: size of one word in byte
             num_words: number of words that are read
         """
+        if self._is_native_access(address, word_size, address_stride,  num_words):
+            start,stop,step = self._prepare_native_access(address, word_size, address_stride,  num_words)
+            return self.mem[start:stop:step].astype(np.uint64)
         ret = np.empty([num_words], np.uint64)
         for i in range(num_words):
             ret[i] = self._read_word(address+i*address_stride, word_size)
@@ -96,5 +107,10 @@ class RegIoNoHW(RegIo):
             word_size: size of one word in byte
             data: array of words to be written
         """
+        num_words = len(data)
+        if self._is_native_access(address, word_size, address_stride,  num_words):
+            start,stop,step = self._prepare_native_access(address, word_size, address_stride,  num_words)
+            self.mem[start:stop:step] = data
+            return
         for idx, value in enumerate(data):
             self._write_word(address+idx*address_stride, word_size, value)

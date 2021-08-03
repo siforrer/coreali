@@ -34,7 +34,23 @@ class TestRegisterIo(unittest.TestCase):
 
         self.assertTrue(np.array_equal(
                 rio.read_words(10*4,4,4,6),np.arange(10,16)))
-
+        
+    def test_uint32(self):
+        rio = RegIoNoHW()
+        rio.mem = np.zeros([16],np.uint32)        
+        rio.write_words(0, 4, 4, np.arange(0,16))
+        self.assertTrue(np.array_equal(
+                rio.mem,np.arange(0,16)))
+        self.assertTrue(np.array_equal(
+                rio.read_words(10*4,4,4,6),np.arange(10,16)))
+        
+    def modify_words(self):
+        rio = RegIoNoHW()
+        rio.mem = np.zeros([16],np.uint32)       
+        rio.modify_words(4, 4, 4, 0x1234567, 0x000000ff)
+        self.assertEqual(rio.mem[1], 0x57)
+        rio.modify_words(4, 4, 4, 0x1234567, 0x10000000)
+        self.assertEqual(rio.mem[1], 0x10000000)
 
 if __name__ == '__main__':
     unittest.main()

@@ -156,7 +156,7 @@ class TestPythonExporter(unittest.TestCase):
         
     def test_mem_write(self):
         test_reg_desc = test_register_description(root, RegIoNoHW())
-        test_reg_desc._rio.mem = np.zeros([test_reg_desc.node.size], np.uint8)
+        test_reg_desc._rio.mem = np.zeros([test_reg_desc.node.size], np.uint32)
         
         test_reg_desc.TwoMemories.write(
             0, [list(range(100, 164, 1)), list(range(200, 264, 1))])
@@ -302,7 +302,7 @@ memwidth: 32
         print("Model creation time =" + str(elapsed) + "s")
         self.assertLess(elapsed, 0.2)
 
-        test_reg_desc._rio.mem = np.zeros([test_reg_desc.node.size], np.uint8)
+        test_reg_desc._rio.mem = np.zeros([test_reg_desc.node.size], np.uint32)
 
         access_cnt = 0
         ACCESSES = 10e3
