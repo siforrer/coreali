@@ -133,5 +133,26 @@ class TestSelector(unittest.TestCase):
         data = flat_data.reshape(selector.data_shape())
         self.assertTrue((data[0] == [ 4,5,6,7,8,9]).all())
         self.assertTrue((data[1] == [ 104,105,106,107,108,109]).all())
+        
+        
+    def test_persistent_select(self):
+        a = A()
+        h000 = a[0].b[0].c[0]
+        h001 = a[0].b[0].c[1]
+        h = a.b.c
+        h_1 = a.b[1]
+        selector = Selector()
+        h000._construct_selector(selector.selected)
+        self.assertEqual(selector.selected,[0,0,0])
+        selector = Selector()
+        h001._construct_selector(selector.selected)
+        self.assertEqual(selector.selected,[0,0,1])
+        selector = Selector()
+        a.b.c._construct_selector(selector.selected)
+        self.assertEqual(selector.selected,[0,0,0])
+        selector = Selector()
+        h_1.c._construct_selector(selector.selected)
+        self.assertEqual(selector.selected,[0,1,0])
+        
 if __name__ == '__main__':
     unittest.main()
