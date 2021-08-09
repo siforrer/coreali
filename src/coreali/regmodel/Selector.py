@@ -1,5 +1,6 @@
 import numpy as np
 import copy
+from .Component import Component
 
 class Selectable():
     def __init__(self, parent):
@@ -18,6 +19,10 @@ class Selectable():
             if isinstance(self.__dict__[child], Selectable):
                 if not child == "_parent":
                     c.__dict__[child] = self.__dict__[child]._get_copy()
+                    c.__dict__[child]._parent = c
+            elif isinstance(self.__dict__[child], Component):
+                if not child == "_parent":
+                    c.__dict__[child] = copy.copy(self.__dict__[child])
                     c.__dict__[child]._parent = c
         return c
 
