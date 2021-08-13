@@ -64,9 +64,15 @@ class RegIoNoHW(RegIo):
             word_size: size of word in byte
             word: word that is written to locoation with address
         """
-        for i in range(int(word_size/self.mem.itemsize)):
-            self._write_raw(address+i, [np.mod(word, 2**(self.mem.itemsize*8))])
-            word /= 256
+        if word_size < self.mem.itemsize:
+            aligned_address = int(address/self.mem.itemsize)*self.mem.itemsize
+            data = (word % 2**(8*word_size))*2**(8*(address-aligned_address))
+            mask = (2**(8*word_size)-1)*2**(8*(address-aligned_address))            
+            self.write_words_masked(aligned_address, self.mem.itemsize, self.mem.itemsize, [data], mask)
+        else:
+            for i in range(int(word_size/self.mem.itemsize)):
+                self._write_raw(address+i*self.mem.itemsize, [np.mod(word, 2**(self.mem.itemsize*8))])
+                word = int(word/2**(8*self.mem.itemsize))
 
     def _is_native_access(self, address, word_size, address_stride,  num_words):
         return word_size == self.mem.itemsize and (address % word_size) == 0

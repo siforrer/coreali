@@ -44,13 +44,24 @@ class TestRegisterIo(unittest.TestCase):
         self.assertTrue(np.array_equal(
                 rio.read_words(10*4,4,4,6),np.arange(10,16)))
         
-    def modify_words(self):
+    def test_write_words_masked(self):
         rio = RegIoNoHW()
         rio.mem = np.zeros([16],np.uint32)       
-        rio.modify_words(4, 4, 4, 0x1234567, 0x000000ff)
-        self.assertEqual(rio.mem[1], 0x57)
-        rio.modify_words(4, 4, 4, 0x1234567, 0x10000000)
-        self.assertEqual(rio.mem[1], 0x10000000)
+        rio.write_words_masked(4, 4, 4, [0x1234567], [0x000000ff])
+        self.assertEqual(rio.mem[1], 0x67)
+        rio.write_words_masked(4, 4, 4, [0x12345678], [0x10000000])
+        self.assertEqual(rio.mem[1], 0x10000067)
+
+    def test_modify_words(self):
+        rio = RegIoNoHW()
+        rio.mem = np.zeros([16],np.uint32)       
+        rio.modify_words(4, 4, 4, 0,31, [0x12345678])
+        self.assertEqual(rio.mem[1], 0x12345678)
+        rio.modify_words(4, 4, 4, 28,31, [0xf])
+        self.assertEqual(rio.mem[1], 0xf2345678)
+        rio.modify_words(4, 4, 4, 0,3, [0x0])
+        self.assertEqual(rio.mem[1], 0xf2345670)
+
 
 if __name__ == '__main__':
     unittest.main()

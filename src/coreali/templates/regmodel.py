@@ -22,7 +22,7 @@ class {{get_class_name(node)}}(RegisterModel):
 {%- macro child_insts(node) -%}
 {%- for child in node.children() -%}
     {%- if isinstance(child, (FieldNode)) -%}
-self.{{child.inst_name}} = Field(self._root, self.node.get_path(empty_array_suffix="") + ".{{child.inst_name}}", self)
+self.{{child.inst_name}} = Field(self._root, self.node.get_path(empty_array_suffix="") + ".{{child.inst_name}}", self, rio)
     {%- elif isinstance(child, (MemNode)) -%}
 self.{{child.inst_name}} = Memory(self._root, self.node.get_path(empty_array_suffix="") + ".{{child.inst_name}}", self, rio)
     {%- else -%}

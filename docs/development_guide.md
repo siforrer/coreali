@@ -6,8 +6,11 @@ Get the repository
 Install dependencies
 
     pip install mkdocs
+	pip install mkdocs-material
+	pip install mkdocstrings
     pip install systemrdl-compiler
     pip install invoke
+    pip install numpy
 
 Some useful commands can be started with invoke. For example run the unit tests
 
@@ -21,5 +24,8 @@ and then install the locally created package in your python distribution
 
     python -m invoke install
 
+Or show this documentation:
+
+	python -m mkdocs serve
 
 
