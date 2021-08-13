@@ -5,15 +5,17 @@ from systemrdl import RDLCompiler
 import coreali 
 import numpy as np
 import os
-root = os.path.dirname(__file__)+"/"
+import sys
+
 rdlc = RDLCompiler()
-rdlc.compile_file(root+"../systemrdl/logger.rdl")
+rdlc.compile_file(os.path.dirname(__file__)+"/../systemrdl/logger.rdl")
 root = rdlc.elaborate()
 
 # Generate hierarchical register model 
 pythonExporter = coreali.PythonExporter()
-pythonExporter.export(root, "generated_regmodel.py")
-
+pythonExporter.export(root, os.path.dirname(__file__)+"/generated_regmodel.py")
+if not os.path.dirname(__file__) in sys.path:
+    sys.path.insert(0, os.path.dirname(__file__))
 # Create the generated register model object
 import generated_regmodel
 rio = coreali.registerio.RegIoNoHW(np.zeros([256], np.uint8()))
