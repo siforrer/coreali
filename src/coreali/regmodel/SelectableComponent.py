@@ -9,7 +9,6 @@ class SelectableComponent(Component, Selectable):
         Component.__init__(self, root, path, parent)
         Selectable.__init__(self, parent)
         self._rio = rio
-        self._select = None
 
     def _set_current_idx(self, selector):
         n = self.node
@@ -31,12 +30,20 @@ class SelectableComponent(Component, Selectable):
             return self._default_slice()
         return 0
                 
+    def modify(self, lsb, msb, value):
+
+        selector = Selector()
+        self._construct_selector(selector.selected)
+        if not selector.data_shape() :
+            self._set_current_idx(selector.selected)
+            self._rio.modify_words(self.node.absolute_address, self.node.size,self.node.size, lsb, msb, [value])
+        
     def read(self):
         selector = Selector()
         self._construct_selector(selector.selected)
         if not selector.data_shape() :
             self._set_current_idx(selector.selected)
-            return self._rio.read_words(self.node.absolute_address, self.node.size)[0]
+            return self._rio.read_words(self.node.absolute_address, self.node.size,self.node.size,1)[0]
         
         flat_data = np.empty([selector.numel()],dtype=np.uint64)  
         for _idx, (flat_idx, sel_idx) in enumerate(selector):
@@ -99,7 +106,7 @@ class SelectableComponent(Component, Selectable):
         for child in self.node.children():
             if isinstance(child, (FieldNode)):
                 tmp = Field(
-                    self._root, child.get_path(empty_array_suffix=""), self)
+                    self._root, child.get_path(empty_array_suffix=""), self, self._rio)
                 s += "\n" + tmp._tostr(indent+2, value)
             elif isinstance(child, (MemNode)):
                 from .Memory import Memory

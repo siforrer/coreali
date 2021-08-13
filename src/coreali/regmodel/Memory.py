@@ -35,6 +35,22 @@ class Memory(SelectableComponent):
         
         
     def read(self, *args):
+        """Read content of a memory
+
+           read() # Read entire memory
+
+           read(stop) # Read first "stop" entries
+           
+           read(start, stop[, step])
+
+        Args:
+            stop: index until (not included) the data is readout, ,  defaults to mementries
+            start: start index of readout,  defaults to 0
+            step: step index of readout,  defaults to 1
+
+        Returns:
+            Array of values
+        """
         word_size = int(self.node.get_property('memwidth') / 8)
         mementries = self.node.get_property('mementries')
         selector = Selector()
@@ -77,3 +93,9 @@ class Memory(SelectableComponent):
 
     def __str__(self):
         return self._tostr()
+    
+    def _tostr(self, indent=0):
+        mementries = self.node.get_property('mementries')
+        value = self.read(0,min(mementries,100))
+        s = self._format_string(indent, value)
+        return s

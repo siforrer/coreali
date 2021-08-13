@@ -6,22 +6,13 @@ class Field(Component):
 
     This class allows the read and write access to fields in a register.
     """
-    def __init__(self, root, path, parent):
+    def __init__(self, root, path, parent, rio):
         Component.__init__(self, root, path, parent)
-        self._parent = parent
 
     def _register_to_field_value(self, register_value):
         field_value = np.uint64(register_value*2**(-self.node.lsb))
         field_value = np.mod(field_value,np.uint64(2**(self.node.msb-self.node.lsb+1)))
         return field_value
-    
-    def _modify_register_value(self, register_value, field_value):
-        mask = 2**(self.node.msb-self.node.lsb+1)-1
-        mask = mask << self.node.lsb
-        mask = np.uint64(mask)
-        register_value = np.bitwise_and(np.uint64(register_value),np.invert(mask))
-        register_value += field_value*np.uint64(2**self.node.lsb)
-        return register_value
         
     def read(self):
         """Read field value
@@ -31,10 +22,12 @@ class Field(Component):
         """
         return self._register_to_field_value(self._parent.read())
 
-    def write(self, data):
-        register_value = self._parent.read()
-        register_value = self._modify_register_value(register_value, data)
-        self._parent.write(register_value)
+
+    def write(self, field_value):
+        """Write field value
+
+        """
+        self._parent.modify(self.node.lsb, self.node.msb, field_value)
 
     def _tostr(self, indent, value):
         field_value = self._register_to_field_value(value)

@@ -1,4 +1,6 @@
 import numpy as np
+import copy
+from .Component import Component
 
 class Selectable():
     def __init__(self, parent):
@@ -6,8 +8,23 @@ class Selectable():
         self._select = None
     
     def __getitem__(self, key):
-        self._select = key
-        return self
+        c = self._get_copy()
+        c._select = key
+        return c
+    
+    
+    def _get_copy(self):
+        c = copy.copy(self)        
+        for child in self.__dict__.keys():
+            if isinstance(self.__dict__[child], Selectable):
+                if not child == "_parent":
+                    c.__dict__[child] = self.__dict__[child]._get_copy()
+                    c.__dict__[child]._parent = c
+            elif isinstance(self.__dict__[child], Component):
+                if not child == "_parent":
+                    c.__dict__[child] = copy.copy(self.__dict__[child])
+                    c.__dict__[child]._parent = c
+        return c
 
     def _default_start(self):
         return 0
@@ -50,7 +67,6 @@ class Selectable():
         selector.insert(0,self._get_selection())
         if not self._parent is None:
             self._parent._construct_selector(selector)
-        self._select = None
 
 
 class Selector():
