@@ -1,2 +1,3 @@
 numpy
 systemrdl-compiler
+jinja2
