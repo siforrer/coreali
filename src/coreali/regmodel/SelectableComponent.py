@@ -4,6 +4,7 @@ from .Component import Component
 from .Field import Field
 from .Selector import Selectable, Selector
 
+
 class SelectableComponent(Component, Selectable):
     def __init__(self, root, path, parent, rio):
         Component.__init__(self, root, path, parent)
@@ -15,44 +16,48 @@ class SelectableComponent(Component, Selectable):
         for i in reversed(range(len(selector))):
             n.current_idx = [selector[i]]
             n = n.parent
-            
+
     def _default_start(self):
         return 0
-    
+
     def _default_stop(self):
-        return self.node.array_dimensions[0] # TODO currently only 1d arrays are supported
-    
-    def _default_step(self):        
+        # TODO currently only 1d arrays are supported
+        return self.node.array_dimensions[0]
+
+    def _default_step(self):
         return 1
-    
+
     def _default_selection(self):
         if self.node.is_array:
             return self._default_slice()
         return 0
-                
+
     def modify(self, lsb, msb, value):
 
         selector = Selector()
         self._construct_selector(selector.selected)
-        if not selector.data_shape() :
+        if not selector.data_shape():
             self._set_current_idx(selector.selected)
-            self._rio.modify_words(self.node.absolute_address, self.node.size,self.node.size, lsb, msb, [value])
-        
+            self._rio.modify_words(
+                self.node.absolute_address, self.node.size, self.node.size, lsb, msb, [value])
+
     def read(self):
         selector = Selector()
         self._construct_selector(selector.selected)
-        if not selector.data_shape() :
+        if not selector.data_shape():
             self._set_current_idx(selector.selected)
-            return self._rio.read_words(self.node.absolute_address, self.node.size,self.node.size,1)[0]
-        
-        flat_data = np.empty([selector.numel()],dtype=np.uint64)  
+            return self._rio.read_words(self.node.absolute_address, self.node.size, self.node.size, 1)[0]
+
+        flat_data = np.empty([selector.numel()], dtype=np.uint64)
         for _idx, (flat_idx, sel_idx) in enumerate(selector):
             self._set_current_idx(sel_idx)
             if selector.flat_len() > 1:
-                array_stride = self.node.array_stride*selector.selected[-1].step
+                array_stride = self.node.array_stride * \
+                    selector.selected[-1].step
             else:
                 array_stride = self.node.size
-            flat_data[flat_idx:flat_idx+selector.flat_len()] = self._rio.read_words(self.node.absolute_address, self.node.size, array_stride, selector.flat_len())
+            flat_data[flat_idx:flat_idx+selector.flat_len()] = self._rio.read_words(
+                self.node.absolute_address, self.node.size, array_stride, selector.flat_len())
         data = flat_data.reshape(selector.data_shape())
         return data
 
@@ -77,22 +82,23 @@ class SelectableComponent(Component, Selectable):
         Args:
             value : Can be int for writing a single value or a list/numpy.array for writing multiple values to a register array
         """
-        selector = Selector();
+        selector = Selector()
         self._construct_selector(selector.selected)
-        if not selector.data_shape() : # single access
+        if not selector.data_shape():  # single access
             self._set_current_idx(selector.selected)
-            self._rio.write_words(self.node.absolute_address, self.node.size, self.node.size, [value])
+            self._rio.write_words(self.node.absolute_address,
+                                  self.node.size, self.node.size, [value])
         else:
             flat_data = np.uint64(value).flatten()
             for _idx, (flat_idx, sel_idx) in enumerate(selector):
                 self._set_current_idx(sel_idx)
                 if selector.flat_len() > 1:
-                    array_stride = self.node.array_stride*selector.selected[-1].step
+                    array_stride = self.node.array_stride * \
+                        selector.selected[-1].step
                 else:
                     array_stride = self.node.size
-                self._rio.write_words(self.node.absolute_address, self.node.size, array_stride, flat_data[flat_idx:flat_idx+selector.flat_len()])
-            
-        
+                self._rio.write_words(self.node.absolute_address, self.node.size,
+                                      array_stride, flat_data[flat_idx:flat_idx+selector.flat_len()])
 
     def __str__(self):
         return self._tostr()

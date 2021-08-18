@@ -93,15 +93,17 @@ class TestPythonExporter(unittest.TestCase):
                 0, 0, 2, 0, 4, 0, 6, 0, 0, 0]))
         self.assertTrue(
             np.array_equal(test_reg_desc.AnotherAddrmap.TenRegs[2:7:2].read(), [2, 4, 6]))
-        
+
         test_reg_desc.AnAddrmap.AnotherRegfile[0].AReg.write(1111)
         test_reg_desc.AnAddrmap.AnotherRegfile[1].AReg.write(2222)
         self.assertTrue(
-            np.array_equal(test_reg_desc.AnAddrmap.AnotherRegfile.AReg.read(),[1111,2222]))
-        
-        test_reg_desc.AnAddrmap.AnotherRegfile.AnotherReg.write([1,2])
-        self.assertEqual(test_reg_desc.AnAddrmap.AnotherRegfile[0].AnotherReg.read(),1)
-        self.assertEqual(test_reg_desc.AnAddrmap.AnotherRegfile[1].AnotherReg.read(),2)
+            np.array_equal(test_reg_desc.AnAddrmap.AnotherRegfile.AReg.read(), [1111, 2222]))
+
+        test_reg_desc.AnAddrmap.AnotherRegfile.AnotherReg.write([1, 2])
+        self.assertEqual(
+            test_reg_desc.AnAddrmap.AnotherRegfile[0].AnotherReg.read(), 1)
+        self.assertEqual(
+            test_reg_desc.AnAddrmap.AnotherRegfile[1].AnotherReg.read(), 2)
 
     def test_arrays_of_array(self):
         """
@@ -136,7 +138,7 @@ class TestPythonExporter(unittest.TestCase):
         test_reg_desc.Mem64x32.write(0, list(range(0, 64, 1)))
         self.assertTrue(
             np.array_equal(list(range(0, 64, 1)),
-                           test_reg_desc._rio.read_words(0x400, 4, 4,64)))
+                           test_reg_desc._rio.read_words(0x400, 4, 4, 64)))
 
         self.assertTrue(
             np.array_equal(test_reg_desc.Mem64x32.read(), list(range(0, 64, 1))))
@@ -153,38 +155,46 @@ class TestPythonExporter(unittest.TestCase):
             0, [list(range(100, 164, 1)), list(range(200, 264, 1))])
         self.assertTrue(
             np.array_equal(test_reg_desc.TwoMemories.read(), [list(range(100, 164, 1)), list(range(200, 264, 1))]))
-        
+
     def test_mem_write(self):
         test_reg_desc = test_register_description(root, RegIoNoHW())
         test_reg_desc._rio.mem = np.zeros([test_reg_desc.node.size], np.uint32)
-        
+
         test_reg_desc.TwoMemories.write(
             0, [list(range(100, 164, 1)), list(range(200, 264, 1))])
-        
+
         test_reg_desc.TwoMemories.node.current_idx = [0]
-        self.assertEqual(test_reg_desc._rio.read_words(test_reg_desc.TwoMemories.node.absolute_address,4)[0],100)
-        self.assertEqual(test_reg_desc._rio.read_words(test_reg_desc.TwoMemories.node.absolute_address+10*4,4)[0],110)
+        self.assertEqual(test_reg_desc._rio.read_words(
+            test_reg_desc.TwoMemories.node.absolute_address, 4)[0], 100)
+        self.assertEqual(test_reg_desc._rio.read_words(
+            test_reg_desc.TwoMemories.node.absolute_address+10*4, 4)[0], 110)
 
         test_reg_desc.TwoMemories.node.current_idx = [1]
-        self.assertEqual(test_reg_desc._rio.read_words(test_reg_desc.TwoMemories.node.absolute_address,4)[0],200)
-        self.assertEqual(test_reg_desc._rio.read_words(test_reg_desc.TwoMemories.node.absolute_address+10*4,4)[0],210)
-        
+        self.assertEqual(test_reg_desc._rio.read_words(
+            test_reg_desc.TwoMemories.node.absolute_address, 4)[0], 200)
+        self.assertEqual(test_reg_desc._rio.read_words(
+            test_reg_desc.TwoMemories.node.absolute_address+10*4, 4)[0], 210)
+
     def test_mem_read(self):
         test_reg_desc = test_register_description(root, RegIoNoHW())
         test_reg_desc._rio.mem = np.zeros([test_reg_desc.node.size], np.uint8)
-        test_reg_desc._rio.write_words(0,4,4,np.arange(0,test_reg_desc.node.size-4,4,dtype=np.uint64))
+        test_reg_desc._rio.write_words(0, 4, 4, np.arange(
+            0, test_reg_desc.node.size-4, 4, dtype=np.uint64))
 
-        read_data =test_reg_desc.TwoMemories.read()
-        
+        read_data = test_reg_desc.TwoMemories.read()
+
         test_reg_desc.TwoMemories.node.current_idx = [0]
-        self.assertEqual(test_reg_desc.TwoMemories.node.absolute_address,read_data[0][0])
-        self.assertEqual(test_reg_desc.TwoMemories.node.absolute_address+6*4,read_data[0][6])
-        
+        self.assertEqual(
+            test_reg_desc.TwoMemories.node.absolute_address, read_data[0][0])
+        self.assertEqual(
+            test_reg_desc.TwoMemories.node.absolute_address+6*4, read_data[0][6])
+
         test_reg_desc.TwoMemories.node.current_idx = [1]
-        self.assertEqual(test_reg_desc.TwoMemories.node.absolute_address,read_data[1][0])
-        self.assertEqual(test_reg_desc.TwoMemories.node.absolute_address+6*4,read_data[1][6])
-        
-        
+        self.assertEqual(
+            test_reg_desc.TwoMemories.node.absolute_address, read_data[1][0])
+        self.assertEqual(
+            test_reg_desc.TwoMemories.node.absolute_address+6*4, read_data[1][6])
+
     def test_tostr(self):
         """
         Test that the tostr function generates the desired output
