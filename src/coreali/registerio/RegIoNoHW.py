@@ -67,16 +67,18 @@ class RegIoNoHW(RegIo):
         if word_size < self.mem.itemsize:
             aligned_address = int(address/self.mem.itemsize)*self.mem.itemsize
             data = (word % 2**(8*word_size))*2**(8*(address-aligned_address))
-            mask = (2**(8*word_size)-1)*2**(8*(address-aligned_address))            
-            self.write_words_masked(aligned_address, self.mem.itemsize, self.mem.itemsize, [data], mask)
+            mask = (2**(8*word_size)-1)*2**(8*(address-aligned_address))
+            self.write_words_masked(
+                aligned_address, self.mem.itemsize, self.mem.itemsize, [data], mask)
         else:
             for i in range(int(word_size/self.mem.itemsize)):
-                self._write_raw(address+i*self.mem.itemsize, [np.mod(word, 2**(self.mem.itemsize*8))])
+                self._write_raw(address+i*self.mem.itemsize,
+                                [np.mod(word, 2**(self.mem.itemsize*8))])
                 word = int(word/2**(8*self.mem.itemsize))
 
     def _is_native_access(self, address, word_size, address_stride,  num_words):
         return word_size == self.mem.itemsize and (address % word_size) == 0
-    
+
     def _prepare_native_access(self, address, word_size, address_stride,  num_words):
         start = int(address/word_size)
         if num_words > 1:
@@ -84,8 +86,8 @@ class RegIoNoHW(RegIo):
         else:
             step = 1
         stop = start + num_words*step
-        return start,stop,step
-    
+        return start, stop, step
+
     def read_words(self, address, word_size, address_stride=0,  num_words=1):
         """Read multiple words starting from address
 
@@ -96,14 +98,14 @@ class RegIoNoHW(RegIo):
             num_words: number of words that are read
         """
         if self._is_native_access(address, word_size, address_stride,  num_words):
-            start,stop,step = self._prepare_native_access(address, word_size, address_stride,  num_words)
+            start, stop, step = self._prepare_native_access(
+                address, word_size, address_stride,  num_words)
             return self.mem[start:stop:step].astype(np.uint64)
         ret = np.empty([num_words], np.uint64)
         for i in range(num_words):
             ret[i] = self._read_word(address+i*address_stride, word_size)
         return ret
-    
-    
+
     def write_words(self, address, word_size, address_stride, data):
         """Write multiple words starting from address
 
@@ -115,7 +117,8 @@ class RegIoNoHW(RegIo):
         """
         num_words = len(data)
         if self._is_native_access(address, word_size, address_stride,  num_words):
-            start,stop,step = self._prepare_native_access(address, word_size, address_stride,  num_words)
+            start, stop, step = self._prepare_native_access(
+                address, word_size, address_stride,  num_words)
             self.mem[start:stop:step] = data
             return
         for idx, value in enumerate(data):

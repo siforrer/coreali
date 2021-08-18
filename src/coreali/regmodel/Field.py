@@ -1,19 +1,22 @@
 from .Component import Component
 import numpy as np
 
+
 class Field(Component):
     """Field class representing a register field
 
     This class allows the read and write access to fields in a register.
     """
+
     def __init__(self, root, path, parent, rio):
         Component.__init__(self, root, path, parent)
 
     def _register_to_field_value(self, register_value):
         field_value = np.uint64(register_value*2**(-self.node.lsb))
-        field_value = np.mod(field_value,np.uint64(2**(self.node.msb-self.node.lsb+1)))
+        field_value = np.mod(field_value, np.uint64(
+            2**(self.node.msb-self.node.lsb+1)))
         return field_value
-        
+
     def read(self):
         """Read field value
 
@@ -21,7 +24,6 @@ class Field(Component):
             np.uint64: Field value
         """
         return self._register_to_field_value(self._parent.read())
-
 
     def write(self, field_value):
         """Write field value
@@ -37,7 +39,7 @@ class Field(Component):
         formstr = " "*indent + "{:" + str(22-indent) + "}:"
         if value is None:
             ret = formstr.format(self.node.inst_name)
-        elif isinstance(value, (list,np.ndarray)):
+        elif isinstance(value, (list, np.ndarray)):
             formstr += " " + str(value)
             ret = formstr.format(self.node.inst_name)
             if len(ret) > 100:
