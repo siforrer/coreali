@@ -8,8 +8,8 @@ class Field(Component):
     This class allows the read and write access to fields in a register.
     """
 
-    def __init__(self, root, path, parent, rio):
-        Component.__init__(self, root, path, parent)
+    def __init__(self, root, node, parent, rio):
+        Component.__init__(self, root, node, parent)
 
     def _register_to_field_value(self, register_value):
         field_value = np.uint64(register_value*2**(-self.node.lsb))

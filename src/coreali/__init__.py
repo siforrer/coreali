@@ -1,3 +1,3 @@
-from .PythonExporter import PythonExporter
 from .registerio import RegIo
 from .registerio import RegIoNoHW
+from .regmodel import RegisterModel
