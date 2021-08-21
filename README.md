@@ -47,20 +47,11 @@ rdlc.compile_file("../systemrdl/logger.rdl")
 root = rdlc.elaborate()
 ```
 
-2. Generate hierarchical register model with the PythonExporter from coreali
-
+2. Create the register model object
 ```python
-pythonExporter = coreali.PythonExporter()
-pythonExporter.export(root, "generated_regmodel.py")
-```
-
-3. Create the register model object
-```python
-import generated_regmodel
 rio = coreali.registerio.RegIoNoHW(np.zeros([256], np.uint8()))
-logger = generated_regmodel.logger(root, rio)
+logger = coreali.RegisterModel(root, rio)
 ```
-
 
 In this step the rio register input/output obkect is created. This object handles the low level access. The RegIoNoHW class allows to access virtual registers without having a hardware at hand. The XXXXX example shows how to create your own RegIo class to access your own hardware.**`TODO`**
 
