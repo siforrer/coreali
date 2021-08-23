@@ -6,8 +6,8 @@ from .Selector import Selectable, Selector
 
 
 class SelectableComponent(Component, Selectable):
-    def __init__(self, root, path, parent, rio):
-        Component.__init__(self, root, path, parent)
+    def __init__(self, root, node, parent, rio):
+        Component.__init__(self, root, node, parent)
         Selectable.__init__(self, parent)
         self._rio = rio
 
@@ -112,15 +112,13 @@ class SelectableComponent(Component, Selectable):
         for child in self.node.children():
             if isinstance(child, (FieldNode)):
                 tmp = Field(
-                    self._root, child.get_path(empty_array_suffix=""), self, self._rio)
+                    self._root, child, self, self._rio)
                 s += "\n" + tmp._tostr(indent+2, value)
             elif isinstance(child, (MemNode)):
                 from .Memory import Memory
-                tmp = Memory(self._root, child.get_path(
-                    empty_array_suffix=""), self, self._rio)
+                tmp = Memory(self._root, child, self, self._rio)
                 s += "\n" + tmp._tostr(indent+2)
             else:
-                tmp = SelectableComponent(self._root, child.get_path(
-                    empty_array_suffix=""), self, self._rio)
+                tmp = SelectableComponent(self._root, child, self, self._rio)
                 s += "\n" + tmp._tostr(indent+2)
         return s

@@ -5,12 +5,7 @@ Get the repository
 
 Install dependencies
 
-    pip install mkdocs
-	pip install mkdocs-material
-	pip install mkdocstrings
-    pip install systemrdl-compiler
-    pip install invoke
-    pip install numpy
+    python -m pip install -r tests/requirements.txt
 
 Some useful commands can be started with invoke. For example run the unit tests
 

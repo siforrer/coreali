@@ -1,11 +1,14 @@
 import numpy as np
 
+from systemrdl.node import FieldNode,MemNode
 
 class Component:
-    def __init__(self, root, path, parent):
+    def __init__(self, root, node, parent):
         self._root = root
-        self.node = root.find_by_path(path)
+        self.node = node
         self._parent = parent
+
+
 
     def _format_string(self, indent, value=None):
         formstr = " "*indent + "{:" + str(22-indent) + "}:"

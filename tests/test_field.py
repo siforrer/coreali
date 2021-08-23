@@ -2,13 +2,13 @@ import unittest
 import numpy as np
 from regmodel_for_testing import root
 from coreali.registerio import RegIoNoHW
-from test_register_description import test_register_description
+from coreali import RegisterModel
 
 
 class TestAccessableFieldNode(unittest.TestCase):
 
     def test_write_read(self):
-        test_reg_desc = test_register_description(root, RegIoNoHW())
+        test_reg_desc = RegisterModel(root, RegIoNoHW())
         test_reg_desc._rio.mem = np.zeros([test_reg_desc.node.size], np.uint32)
         test_reg_desc.AnAddrmap.ARegWithFields.FIELD13DOWNTO4.write(3)
         self.assertEqual(test_reg_desc.AnAddrmap.ARegWithFields.read(), 3*2**4)

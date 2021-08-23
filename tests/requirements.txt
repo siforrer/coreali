@@ -1,0 +1,6 @@
+mkdocs
+mkdocs-material
+mkdocstrings
+systemrdl-compiler
+invoke
+numpy
