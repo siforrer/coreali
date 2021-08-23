@@ -77,6 +77,12 @@ class Memory(SelectableComponent):
         return selector, flat_data, flat_len
 
     def write(self, start_idx, value):
+        """Write to a memory location
+
+        Args:
+            start_idx : Start index where the value is written to
+            value : single value or array of values
+        """
         data = np.uint64(value)
         if np.isscalar(data):
             data = np.uint64([data])

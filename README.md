@@ -55,7 +55,7 @@ logger = coreali.RegisterModel(root, rio)
 
 In this step the rio register input/output obkect is created. This object handles the low level access. The RegIoNoHW class allows to access virtual registers without having a hardware at hand. The XXXXX example shows how to create your own RegIo class to access your own hardware.**`TODO`**
 
-4. Use the generated register model
+3. Use the generated register model
 ```python
 logger.Ctrl.read()
 logger.LogMem.write(0,[1,2,3])

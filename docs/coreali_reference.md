@@ -1,6 +1,6 @@
 # Coreali library
 
-::: coreali.PythonExporter
+::: coreali.RegisterModel
 ::: coreali.regmodel.Field
 ::: coreali.regmodel.Memory
 ::: coreali.registerio.RegIo
