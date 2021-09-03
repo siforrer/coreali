@@ -3,7 +3,7 @@ Generates Python code from a register model. This python code can the be used to
 ## Installation
 Coreali can be installed with pip by executing the following command
 
-    pip install -i https://test.pypi.org/simple/ coreali
+    pip install coreali
 
 ## How to use
 The typical use case for coreali is:
