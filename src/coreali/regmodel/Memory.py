@@ -101,6 +101,8 @@ class Memory(SelectableComponent):
         return self._tostr()
 
     def _tostr(self, indent=0):
+        if not self._do_print:
+            return ""
         mementries = self.node.get_property('mementries')
         value = self.read(0, min(mementries, 100))
         s = self._format_string(indent, value)

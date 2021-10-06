@@ -10,6 +10,7 @@ class SelectableComponent(Component, Selectable):
         Component.__init__(self, root, node, parent)
         Selectable.__init__(self, parent)
         self._rio = rio
+        self._do_print = True
 
     def _set_current_idx(self, selector):
         n = self.node
@@ -102,23 +103,3 @@ class SelectableComponent(Component, Selectable):
 
     def __str__(self):
         return self._tostr()
-
-    def _tostr(self, indent=0):
-        if isinstance(self.node, (AddrmapNode, RegfileNode)):
-            s = self._format_string(indent)
-        else:
-            value = self.read()
-            s = self._format_string(indent, value)
-        for child in self.node.children():
-            if isinstance(child, (FieldNode)):
-                tmp = Field(
-                    self._root, child, self, self._rio)
-                s += "\n" + tmp._tostr(indent+2, value)
-            elif isinstance(child, (MemNode)):
-                from .Memory import Memory
-                tmp = Memory(self._root, child, self, self._rio)
-                s += "\n" + tmp._tostr(indent+2)
-            else:
-                tmp = SelectableComponent(self._root, child, self, self._rio)
-                s += "\n" + tmp._tostr(indent+2)
-        return s

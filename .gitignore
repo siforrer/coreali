@@ -6,3 +6,4 @@ tests/generated
 examples/quickstart/regmodel.py
 generated**
 untitled*
+*.bak
