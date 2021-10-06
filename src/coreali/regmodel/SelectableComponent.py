@@ -10,6 +10,7 @@ class SelectableComponent(Component, Selectable):
         Component.__init__(self, root, node, parent)
         Selectable.__init__(self, parent)
         self._rio = rio
+        self._do_print = True
 
     def _set_current_idx(self, selector):
         n = self.node
@@ -104,21 +105,21 @@ class SelectableComponent(Component, Selectable):
         return self._tostr()
 
     def _tostr(self, indent=0):
+        if not self._do_print:
+            return ""
         if isinstance(self.node, (AddrmapNode, RegfileNode)):
             s = self._format_string(indent)
         else:
+            if self._read_has_side_effect():
+                return self._format_string(indent, "(SIDE EFFECTS - NOT READ)")
             value = self.read()
             s = self._format_string(indent, value)
-        for child in self.node.children():
-            if isinstance(child, (FieldNode)):
-                tmp = Field(
-                    self._root, child, self, self._rio)
-                s += "\n" + tmp._tostr(indent+2, value)
-            elif isinstance(child, (MemNode)):
-                from .Memory import Memory
-                tmp = Memory(self._root, child, self, self._rio)
-                s += "\n" + tmp._tostr(indent+2)
-            else:
-                tmp = SelectableComponent(self._root, child, self, self._rio)
-                s += "\n" + tmp._tostr(indent+2)
+            
+        for child in self.__dict__.keys():
+            if not child == "_parent":
+                if isinstance(self.__dict__[child], Field):
+                    s += "\n" + self.__dict__[child]._tostr(indent+2,value)        
+                elif isinstance(self.__dict__[child], Component):
+                    s += "\n" + self.__dict__[child]._tostr(indent+2)
+
         return s

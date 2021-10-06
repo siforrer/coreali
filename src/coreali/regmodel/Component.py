@@ -14,6 +14,9 @@ class Component:
         formstr = " "*indent + "{:" + str(22-indent) + "}:"
         if value is None:
             ret = formstr.format(self.node.inst_name)
+        elif isinstance(value, (str)):
+            formstr += " {:s}"
+            ret = formstr.format(self.node.inst_name, value)
         elif isinstance(value, (list, np.ndarray)):
             formstr += " " + str(value)
             ret = formstr.format(self.node.inst_name)

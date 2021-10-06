@@ -33,4 +33,4 @@ class RegisterModel(SelectableComponent):
                 rgm.__dict__[child.inst_name] = RegisterFile(rgm._root, child , rgm, rio)
             else:
                 rgm.__dict__[child.inst_name] = Register(rgm._root, child , rgm, rio)
-            RegisterModel.construct(rgm.__dict__[child.inst_name], child, rio)
+            RegisterModel._construct(rgm.__dict__[child.inst_name], child, rio)
