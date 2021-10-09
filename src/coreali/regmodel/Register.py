@@ -16,7 +16,10 @@ class Register(SelectableComponent):
             return ""
         if self._read_has_side_effect():
             return self._format_string(indent, "(SIDE EFFECTS - NOT READ)")
-        value = self.read()
+        if self.node.is_array and self.node.array_dimensions[0] > 50:
+            value = self[:50].read()
+        else:
+            value = self.read()
         s = self._format_string(indent, value)
         
         for child in self.__dict__.keys():

@@ -138,7 +138,7 @@ class TestUseCases(unittest.TestCase):
         test_reg_desc.Mem64x32.write(0, list(range(0, 64, 1)))
         self.assertTrue(
             np.array_equal(list(range(0, 64, 1)),
-                           test_reg_desc._rio.read_words(0x400, 4, 4, 64)))
+                           test_reg_desc._rio.read_words(0x800, 4, 4, 64)))
 
         self.assertTrue(
             np.array_equal(test_reg_desc.Mem64x32.read(), list(range(0, 64, 1))))
@@ -149,7 +149,7 @@ class TestUseCases(unittest.TestCase):
         test_reg_desc.ABlockWithMemory.AMemory.write(0, list(range(0, 128, 2)))
         self.assertTrue(
             np.array_equal(list(range(0, 128, 2)),
-                           test_reg_desc._rio.read_words(0x300, 4, 4, 64)))
+                           test_reg_desc._rio.read_words(0x500, 4, 4, 64)))
 
         test_reg_desc.TwoMemories.write(
             0, [list(range(100, 164, 1)), list(range(200, 264, 1))])
@@ -258,6 +258,8 @@ class TestUseCases(unittest.TestCase):
     AReg              :   50462976 = 0x03020100
       VAL             :   50462976 = 0x03020100
     AMemory           : [  50462976  117835012  185207048  252579084  319951120  387323156 ...
+    HundredRegs       : [  50462976  117835012  185207048  252579084  319951120  387323156 ...
+      VAL             : [  256  1284  2312  3340  4368  5396  6424  7452  8480  9508 10536 11564 ...
   Mem64x32            : [         0          2          4          6          8         10 ...
   TwoMemories         : [[        10         11         12         13         14         15 ...
   AnAddrmapWith8bitRegs:
