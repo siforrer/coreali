@@ -49,6 +49,9 @@ addrmap a_block_with_memory {
 		field {sw = rw; hw = r;} VAL[32];
 	} AReg;
 	external mem64x32 AMemory;
+	reg {
+		field {sw = rw; hw = r;} VAL[16];
+	} HundredRegs[100];
 };
 
 addrmap an_addrmap_with_8bit_regs {

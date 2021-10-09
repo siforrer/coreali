@@ -1,7 +1,5 @@
 import numpy as np
-from systemrdl.node import AddrmapNode, FieldNode, MemNode, RegfileNode
 from .Component import Component
-from .Field import Field
 from .Selector import Selectable, Selector
 
 
