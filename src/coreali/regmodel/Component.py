@@ -1,14 +1,10 @@
 import numpy as np
 
-from systemrdl.node import FieldNode,MemNode
-
 class Component:
     def __init__(self, root, node, parent):
         self._root = root
         self.node = node
         self._parent = parent
-
-
 
     def _format_string(self, indent, value=None):
         formstr = " "*indent + "{:" + str(22-indent) + "}:"
@@ -20,6 +16,8 @@ class Component:
         elif isinstance(value, (list, np.ndarray)):
             formstr += " " + str(value)
             ret = formstr.format(self.node.inst_name)
+            if ret.find('\n') >= 0:
+                ret = ret[0:ret.find('\n')] + " ..."
             if len(ret) > 100:
                 ret = ret[0:100] + " ..."
         else:

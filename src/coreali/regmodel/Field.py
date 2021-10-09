@@ -37,14 +37,10 @@ class Field(Component):
 
     def _format_string(self, indent, value=None):
         formstr = " "*indent + "{:" + str(22-indent) + "}:"
-        if value is None:
-            ret = formstr.format(self.node.inst_name)
-        elif isinstance(value, (list, np.ndarray)):
-            formstr += " " + str(value)
-            ret = formstr.format(self.node.inst_name)
-            if len(ret) > 100:
-                ret = ret[0:100] + " ..."
+        if value is None or isinstance(value, (list, np.ndarray)):
+            ret = Component._format_string(self,indent, value)
         else:
             formstr += " {:10d} = 0x{:0" + str(self.node.parent.size*2) + "x}"
             ret = formstr.format(self.node.inst_name, value, value)
         return ret
+
