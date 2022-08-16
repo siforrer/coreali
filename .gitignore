@@ -8,3 +8,5 @@ generated**
 untitled*
 *.bak
 *.stats
+.vscode/settings.json
+site/
