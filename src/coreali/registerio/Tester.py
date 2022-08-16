@@ -68,7 +68,7 @@ class Tester():
             assert self.rio.read_words(
                 cfg.testmem_address+i*cfg.address_incr, cfg.word_size, 4, 1)[0] == i*10+10
 
-        self.rio.write_words(3*cfg.word_size, cfg.word_size,
+        self.rio.write_words(cfg.testmem_address+3*cfg.word_size, cfg.word_size,
                              cfg.address_incr, [10, 20, 30])
         for i in range(3):
             assert self.rio.read_words(

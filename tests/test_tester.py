@@ -16,6 +16,7 @@ class TestRegisterIoTester(unittest.TestCase):
 
         for log2_word_size in range(5):
             tester.config.word_size = 2**log2_word_size
+            tester.config.testmem_address = 16
             for log2_address_incr in range(log2_word_size, 5):
                 tester.config.address_incr = 2**log2_address_incr
                 tester.test_all()
