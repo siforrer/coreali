@@ -1,31 +1,16 @@
-import unittest
-import numpy as np
-from regmodel_for_testing import root
-from coreali.registerio import RegIoNoHW
-from coreali import RegisterModel
+from coreali.regmodel import RegisterModel
 
 
-class TestAccessableFieldNode(unittest.TestCase):
+def test_write_read(reg_desc: RegisterModel):
+    reg_desc.AnAddrmap.ARegWithFields.FIELD13DOWNTO4.write(3)
+    assert reg_desc.AnAddrmap.ARegWithFields.read() == 3*2**4
+    assert reg_desc.AnAddrmap.ARegWithFields.FIELD13DOWNTO4.read() == 3
 
-    def test_write_read(self):
-        test_reg_desc = RegisterModel(root, RegIoNoHW())
-        test_reg_desc._rio.mem = np.zeros([test_reg_desc.node.size], np.uint32)
-        test_reg_desc.AnAddrmap.ARegWithFields.FIELD13DOWNTO4.write(3)
-        self.assertEqual(test_reg_desc.AnAddrmap.ARegWithFields.read(), 3*2**4)
-        self.assertEqual(
-            test_reg_desc.AnAddrmap.ARegWithFields.FIELD13DOWNTO4.read(), 3)
+    reg_desc.AnAddrmap.ARepeatedReg[0].VAL.write(1)
+    reg_desc.AnAddrmap.ARepeatedReg[1].VAL.write(2)
+    reg_desc.AnAddrmap.ARepeatedReg[2].VAL.write(3)
 
-        test_reg_desc.AnAddrmap.ARepeatedReg[0].VAL.write(1)
-        test_reg_desc.AnAddrmap.ARepeatedReg[1].VAL.write(2)
-        test_reg_desc.AnAddrmap.ARepeatedReg[2].VAL.write(3)
-
-        self.assertEqual(test_reg_desc.AnAddrmap.ARepeatedReg[0].read(), 1)
-        self.assertEqual(test_reg_desc.AnAddrmap.ARepeatedReg[1].read(), 2)
-        self.assertEqual(test_reg_desc.AnAddrmap.ARepeatedReg[2].read(), 3)
-        self.assertEqual(test_reg_desc.AnAddrmap.ARepeatedReg[0].VAL.read(), 1)
-        self.assertEqual(test_reg_desc.AnAddrmap.ARepeatedReg[1].VAL.read(), 2)
-        self.assertEqual(test_reg_desc.AnAddrmap.ARepeatedReg[2].VAL.read(), 3)
-
-
-if __name__ == '__main__':
-    unittest.main()
+    for i in range(3):
+        assert reg_desc.AnAddrmap.ARepeatedReg[i].read() == i+1
+    for i in range(3):
+        assert reg_desc.AnAddrmap.ARepeatedReg[i].VAL.read() == i+1

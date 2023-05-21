@@ -4,3 +4,4 @@ mkdocstrings
 systemrdl-compiler
 invoke
 numpy
+pytest

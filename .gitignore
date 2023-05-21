@@ -10,3 +10,4 @@ untitled*
 *.stats
 .vscode/settings.json
 site/
+.venv/
