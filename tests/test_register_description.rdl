@@ -4,12 +4,12 @@ addrmap an_addrmap {
 		field {
 			name = "Field 0 downto 0";
 			desc = "A bitfield from 0 downto 0";
-			sw = r; hw = w;
+			sw = rw; hw = w;
 		} FIELD0DOWNTO0[0:0];
-		field {sw = r; hw = w;} FIELD13DOWNTO4[13:4];
+		field {sw = rw; hw = w;} FIELD13DOWNTO4[13:4];
 		} ARegWithFields;
 	reg  {	
-		field {sw = r; hw = w;} VAL[32];
+		field {sw = rw; hw = w;} VAL[32];
 		} ARepeatedReg[3];
 
 	reg {
@@ -34,6 +34,14 @@ addrmap an_addrmap {
 			field {sw = rw; hw = r;} VAL[32];
 		} AnotherReg;
 	} AnotherRegfile[2];
+
+	reg {
+		field {sw = r; hw = r;} VAL[32];
+	} ReadOnlyReg;
+	
+	reg {
+		field {sw = w; hw = r;} VAL[32];
+	} WriteOnlyReg;
 };
 
 
@@ -64,7 +72,6 @@ addrmap an_addrmap_with_8bit_regs {
 		field {sw = rw; hw = r;} FIELD7DOWNTO4[7:4];
 	} AReg1;
 };
-
 
 addrmap test_register_description { 
     an_addrmap AnAddrmap @0x0;

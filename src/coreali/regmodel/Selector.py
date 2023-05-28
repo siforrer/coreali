@@ -8,6 +8,9 @@ class Selectable():
         self._parent = parent
         self._select = None
 
+    def _update_attr(self):
+        pass
+
     def __getitem__(self, key):
         c = self._get_copy()
         c._select = key
@@ -15,6 +18,7 @@ class Selectable():
 
     def _get_copy(self):
         c = copy.copy(self)
+        c._update_attr()
         for child in self.__dict__.keys():
             if isinstance(self.__dict__[child], Selectable):
                 if not child == "_parent":
@@ -23,6 +27,7 @@ class Selectable():
             elif isinstance(self.__dict__[child], Component):
                 if not child == "_parent":
                     c.__dict__[child] = copy.copy(self.__dict__[child])
+                    c.__dict__[child]._update_attr()
                     c.__dict__[child]._parent = c
         return c
 

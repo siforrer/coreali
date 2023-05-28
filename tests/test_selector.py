@@ -120,7 +120,7 @@ def test_no_slice():
     assert selector.data_shape() == []
 
 
-def test_usecase():
+def test_use_cases():
     a = A()
     a.b.c
     selector = Selector()

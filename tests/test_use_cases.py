@@ -162,7 +162,7 @@ def test_tostr(reg_desc):
     Test that the tostr function generates the desired output
     """
     reg_desc._rio.mem = np.array(
-        list(range(reg_desc.node.size)), np.uint8)
+        list(map(lambda v: v % 256, range(reg_desc.node.size))), np.uint8)
     reg_desc.AnAddrmap.AnotherRegAt20.write(0x12345678)
     reg_desc.AnAddrmap.ARegWithFields.FIELD13DOWNTO4.write(3)
 
@@ -195,6 +195,9 @@ def test_tostr(reg_desc):
         VAL           : [1936879984 2071624056]
       AnotherReg      : [2004252020 2138996092]
         VAL           : [2004252020 2138996092]
+    ReadOnlyReg       : 2206368128 = 0x83828180
+      VAL             : 2206368128 = 0x83828180
+    WriteOnlyReg      : (NOT READABLE)
   AnotherAddrmap      :
     ARegWithFields    :   50462977 = 0x03020101
       FIELD0DOWNTO0   :          1 = 0x00000001
@@ -213,6 +216,9 @@ def test_tostr(reg_desc):
         VAL           : [1936879984 2071624056]
       AnotherReg      : [2004252020 2138996092]
         VAL           : [2004252020 2138996092]
+    ReadOnlyReg       : 2206368128 = 0x83828180
+      VAL             : 2206368128 = 0x83828180
+    WriteOnlyReg      : (NOT READABLE)
   ABlockWithMemory    :
     AReg              :   50462976 = 0x03020100
       VAL             :   50462976 = 0x03020100
@@ -242,9 +248,7 @@ desc: This are two memories
 mementries: 64
 memwidth: 32
 """
-    if result != expected:
-        print(result)
-    assert result == expected
+    assert result == expected, result
 
 
 def test_performance(root):
@@ -281,3 +285,16 @@ def test_performance(root):
     accesses_per_second = ACCESSES/elapsed
     print("Accesses = " + str(int(accesses_per_second)) + "/s")
     assert accesses_per_second > 20e3
+
+
+def test_access_restrictions(reg_desc):
+    # a write to a read only register should not have a read or write methods
+    assert not hasattr(reg_desc.AnAddrmap.ReadOnlyReg, "write")
+    assert hasattr(reg_desc.AnAddrmap.ReadOnlyReg, "read")
+    assert not hasattr(reg_desc.AnAddrmap.ReadOnlyReg.VAL, "write")
+    assert hasattr(reg_desc.AnAddrmap.ReadOnlyReg.VAL, "read")
+
+    assert hasattr(reg_desc.AnAddrmap.WriteOnlyReg, "write")
+    assert not hasattr(reg_desc.AnAddrmap.WriteOnlyReg, "read")
+    assert hasattr(reg_desc.AnAddrmap.WriteOnlyReg.VAL, "write")
+    assert not hasattr(reg_desc.AnAddrmap.WriteOnlyReg.VAL, "read")

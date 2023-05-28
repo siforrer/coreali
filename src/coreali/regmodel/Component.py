@@ -1,10 +1,15 @@
 import numpy as np
 
+
 class Component:
     def __init__(self, root, node, parent):
         self._root = root
         self.node = node
         self._parent = parent
+        self._update_attr()
+
+    def _update_attr(self):
+        pass
 
     def _format_string(self, indent, value=None):
         formstr = " "*indent + "{:" + str(22-indent) + "}:"

@@ -11,13 +11,23 @@ class Field(Component):
     def __init__(self, root, node, parent, rio):
         Component.__init__(self, root, node, parent)
 
+    def _update_attr(self):
+        """
+            Update attributes that object has a read/write function only
+            if the field itself is read/writeable
+        """
+        if self.node.is_sw_writable:
+            setattr(self, "write", self._write)
+        if self.node.is_sw_readable:
+            setattr(self, "read", self._read)
+
     def _register_to_field_value(self, register_value):
         field_value = np.uint64(register_value*2**(-self.node.lsb))
         field_value = np.mod(field_value, np.uint64(
             2**(self.node.msb-self.node.lsb+1)))
         return field_value
 
-    def read(self):
+    def _read(self):
         """Read field value
 
         Returns:
@@ -25,7 +35,7 @@ class Field(Component):
         """
         return self._register_to_field_value(self._parent.read())
 
-    def write(self, field_value):
+    def _write(self, field_value):
         """Write field value
 
         """
@@ -38,9 +48,8 @@ class Field(Component):
     def _format_string(self, indent, value=None):
         formstr = " "*indent + "{:" + str(22-indent) + "}:"
         if value is None or isinstance(value, (list, np.ndarray)):
-            ret = Component._format_string(self,indent, value)
+            ret = Component._format_string(self, indent, value)
         else:
             formstr += " {:10d} = 0x{:0" + str(self.node.parent.size*2) + "x}"
             ret = formstr.format(self.node.inst_name, value, value)
         return ret
-

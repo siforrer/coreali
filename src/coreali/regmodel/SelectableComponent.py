@@ -32,7 +32,6 @@ class SelectableComponent(Component, Selectable):
         return 0
 
     def modify(self, lsb, msb, value):
-
         selector = Selector()
         self._construct_selector(selector.selected)
         if not selector.data_shape():
@@ -40,7 +39,7 @@ class SelectableComponent(Component, Selectable):
             self._rio.modify_words(
                 self.node.absolute_address, self.node.size, self.node.size, lsb, msb, [value])
 
-    def read(self):
+    def _read(self):
         selector = Selector()
         self._construct_selector(selector.selected)
         if not selector.data_shape():
@@ -60,7 +59,7 @@ class SelectableComponent(Component, Selectable):
         data = flat_data.reshape(selector.data_shape())
         return data
 
-    def write(self, value):
+    def _write(self, value):
         """Write to register
 
             Use case examples based on the example register description
