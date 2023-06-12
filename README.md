@@ -9,7 +9,7 @@ Coreali can be installed with pip by executing the following command
 The typical use case for coreali is:
 1. Make a register description of your system in [systemRDL](https://www.accellera.org/activities/working-groups/systemrdl) or any other supported format (ipxact) of the [systemrdl-compiler](https://github.com/SystemRDL/systemrdl-compiler)
 2. Compile the register description with the [systemrdl-compiler](https://github.com/SystemRDL/systemrdl-compiler)
-3. Generate the hierarchical register model class and objects with the **coreali.PythonExporter**
+3. Generate the hierarchical register model class and objects with the **coreali.RegisterModel**
 4. Access the registers of your FPGA device with **coreali.registerio**
 
 ## Quickstart - Logger example
