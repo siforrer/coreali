@@ -232,7 +232,13 @@ def test_tostr(reg_desc):
       VAL             :          0 = 0x00
     AReg1             :          1 = 0x01
       FIELD3DOWNTO0   :          1 = 0x01
-      FIELD7DOWNTO4   :          0 = 0x00"""
+      FIELD7DOWNTO4   :          0 = 0x00
+  AnAddrmapWith64bitRegs:
+    AReg0             : 1663540288323457280 = 0x1716151413121100
+      VAL             : 1663540288323457280 = 0x1716151413121100
+    AReg1             : 2242261671028070656 = 0x1f1e1d1c1b1a1900
+      FIELD3DOWNTO0   :          0 = 0x0000000000000000
+      FIELD7DOWNTO4   :          0 = 0x0000000000000000"""
     assert result == expected, result + expected
 
 

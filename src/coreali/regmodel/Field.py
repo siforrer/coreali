@@ -23,21 +23,22 @@ class Field(Component):
 
     def _register_to_field_value(self, register_value):
         field_value = np.uint64(register_value*2**(-self.node.lsb))
-        field_value = np.mod(field_value, np.uint64(
-            2**(self.node.msb-self.node.lsb+1)))
+        field_value = np.bitwise_and(field_value, np.uint64(
+            2**(self.node.msb-self.node.lsb+1)-1))
         return field_value
 
     def _read(self):
-        """Read field value
-
-        Returns:
-            np.uint64: Field value
+        """
+        This function reads a field value and returns it as an unsigned 64-bit integer.
+        :return: The function `_read` is returning a 64-bit unsigned integer value of the field.
         """
         return self._register_to_field_value(self._parent.read())
 
     def _write(self, field_value):
-        """Write field value
+        """
+        This function writes a field value by modifying the parent register.
 
+        :param field_value: The value to be written to the field
         """
         self._parent.modify(self.node.lsb, self.node.msb, field_value)
 
