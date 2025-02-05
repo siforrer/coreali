@@ -1,13 +1,13 @@
+import numpy as np
+from systemrdl import RDLCompiler, RDLCompileError
 import pytest
 import os
 import sys
 from os.path import dirname
-if not dirname(__file__) + "/../src/" in sys.path:
-    sys.path.insert(0, dirname(__file__) + "/../src/")
-from systemrdl import RDLCompiler, RDLCompileError
-from coreali import RegisterModel
-from coreali.registerio import RegIoNoHW
-import numpy as np
+print(dirname(__file__) + "/../src/")
+sys.path.insert(0, dirname(__file__) + "/../src/")  # noqa
+from coreali.registerio import RegIoNoHW  # noqa
+from coreali import RegisterModel  # noqa
 
 
 @pytest.fixture(scope="module")
