@@ -1,5 +1,5 @@
 import numpy as np
-
+from .Printer import StrPrinter
 
 class Component:
     def __init__(self, root, node, parent):
@@ -11,24 +11,8 @@ class Component:
     def _update_attr(self):
         pass
 
-    def _format_string(self, indent, value=None):
-        formstr = " "*indent + "{:" + str(22-indent) + "}:"
-        if value is None:
-            ret = formstr.format(self.node.inst_name)
-        elif isinstance(value, (str)):
-            formstr += " {:s}"
-            ret = formstr.format(self.node.inst_name, value)
-        elif isinstance(value, (list, np.ndarray)):
-            formstr += " " + str(value)
-            ret = formstr.format(self.node.inst_name)
-            if ret.find('\n') >= 0:
-                ret = ret[0:ret.find('\n')] + " ..."
-            if len(ret) > 100:
-                ret = ret[0:100] + " ..."
-        else:
-            formstr += " {:10d} = 0x{:0" + str(self.node.size*2) + "x}"
-            ret = formstr.format(self.node.inst_name, value, value)
-        return ret
+    def _print(self, printer, value=None):
+        printer.print(self.node.inst_name, value, self.node.size)
 
     def help(self):
         for property_name in self.node.list_properties():

@@ -1,7 +1,7 @@
 import numpy as np
 from .Component import Component
 from .Selector import Selectable, Selector
-
+from .Printer import StrPrinter
 
 class SelectableComponent(Component, Selectable):
     def __init__(self, root, node, parent, rio):
@@ -99,4 +99,6 @@ class SelectableComponent(Component, Selectable):
                                       array_stride, flat_data[flat_idx:flat_idx+selector.flat_len()])
 
     def __str__(self):
-        return self._tostr()
+        printer = StrPrinter()
+        self._print(printer)
+        return printer.tostr()

@@ -1,4 +1,5 @@
 from .Component import Component
+from .Printer import StrPrinter
 import numpy as np
 
 
@@ -42,15 +43,6 @@ class Field(Component):
         """
         self._parent.modify(self.node.lsb, self.node.msb, field_value)
 
-    def _tostr(self, indent, value):
+    def _print(self, printer, value):
         field_value = self._register_to_field_value(value)
-        return self._format_string(indent, field_value)
-
-    def _format_string(self, indent, value=None):
-        formstr = " "*indent + "{:" + str(22-indent) + "}:"
-        if value is None or isinstance(value, (list, np.ndarray)):
-            ret = Component._format_string(self, indent, value)
-        else:
-            formstr += " {:10d} = 0x{:0" + str(self.node.parent.size*2) + "x}"
-            ret = formstr.format(self.node.inst_name, value, value)
-        return ret
+        printer.print(self.node.inst_name, field_value, self.node.parent.size)

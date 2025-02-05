@@ -1,5 +1,6 @@
 from .SelectableComponent import SelectableComponent
 from .Field import Field
+from .Printer import StrPrinter
 
 
 class Register(SelectableComponent):
@@ -18,22 +19,24 @@ class Register(SelectableComponent):
                 return True
         return False
 
-    def _tostr(self, indent=0):
+    def _print(self, printer):
         if not self._do_print:
-            return ""
+            return
         if self._read_has_side_effect():
-            return self._format_string(indent, "(SIDE EFFECTS - NOT READ)")
+            printer.print(self.node.inst_name, "(SIDE EFFECTS - NOT READ)")
+            return
         if not self.node.has_sw_readable:
-            return self._format_string(indent, "(NOT READABLE)")
+            printer.print(self.node.inst_name, "(NOT READABLE)")
+            return
         if self.node.is_array and self.node.array_dimensions[0] > 50:
             value = self[:50].read()
         else:
             value = self.read()
-        s = self._format_string(indent, value)
+        printer.print(self.node.inst_name, value, self.node.size)
 
+        printer.indent()
         for child in self.__dict__.keys():
             if not child == "_parent":
                 if isinstance(self.__dict__[child], Field):
-                    s += "\n" + self.__dict__[child]._tostr(indent+2, value)
-
-        return s
+                    self.__dict__[child]._print(printer, value)
+        printer.outdent()

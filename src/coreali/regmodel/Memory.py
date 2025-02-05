@@ -1,6 +1,7 @@
 import numpy as np
 from .SelectableComponent import SelectableComponent
 from .Selector import Selectable, Selector
+from .Printer import StrPrinter
 
 
 class Memory(SelectableComponent):
@@ -98,12 +99,14 @@ class Memory(SelectableComponent):
                                   selector.selected[-1].step, word_size, flat_data[flat_idx:flat_idx+flat_len])
 
     def __str__(self):
-        return self._tostr()
+        printer = StrPrinter()
+        self._print(printer)
+        return printer.tostr()
 
-    def _tostr(self, indent=0):
+    def _print(self, printer=StrPrinter()):
         if not self._do_print:
             return ""
         mementries = self.node.get_property('mementries')
         value = self.read(0, min(mementries, 100))
-        s = self._format_string(indent, value)
-        return s
+
+        printer.print(self.node.inst_name, value)
