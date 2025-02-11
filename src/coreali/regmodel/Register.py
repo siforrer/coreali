@@ -1,6 +1,5 @@
 from .SelectableComponent import SelectableComponent
 from .Field import Field
-from .Printer import StrPrinter
 
 
 class Register(SelectableComponent):

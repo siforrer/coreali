@@ -1,5 +1,4 @@
 from .Component import Component
-from .Printer import StrPrinter
 import numpy as np
 
 

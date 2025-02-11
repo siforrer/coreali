@@ -1,4 +1,3 @@
-from .Printer import StrPrinter
 from .SelectableComponent import SelectableComponent
 from .Component import Component
 

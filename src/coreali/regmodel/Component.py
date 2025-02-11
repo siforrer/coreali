@@ -1,6 +1,3 @@
-import numpy as np
-from .Printer import StrPrinter
-
 class Component:
     def __init__(self, root, node, parent):
         self._root = root

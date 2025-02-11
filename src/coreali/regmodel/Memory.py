@@ -1,6 +1,6 @@
 import numpy as np
 from .SelectableComponent import SelectableComponent
-from .Selector import Selectable, Selector
+from .Selector import Selector
 from .Printer import StrPrinter
 
 

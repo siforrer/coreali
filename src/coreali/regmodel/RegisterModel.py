@@ -1,4 +1,3 @@
-from .SelectableComponent import SelectableComponent
 from .Field import Field
 from .Memory import Memory
 from .Register import Register
