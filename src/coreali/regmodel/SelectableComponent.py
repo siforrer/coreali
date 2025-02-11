@@ -1,7 +1,7 @@
 import numpy as np
 from .Component import Component
 from .Selector import Selectable, Selector
-from .Printer import StrPrinter
+from .Printer import StrPrinter, HtmlPrinter
 
 class SelectableComponent(Component, Selectable):
     def __init__(self, root, node, parent, rio):
@@ -100,5 +100,10 @@ class SelectableComponent(Component, Selectable):
 
     def __str__(self):
         printer = StrPrinter()
+        self._print(printer)
+        return printer.tostr()
+
+    def _repr_html_(self):
+        printer = HtmlPrinter()
         self._print(printer)
         return printer.tostr()
