@@ -23,10 +23,25 @@ def test_writeread(reg_desc):
     assert reg_desc.AnotherAddrmap.ARegWithFields.FIELD13DOWNTO4.read() == 3
 
 
+def test_writeread_64bit(reg_desc):
+    """
+    Test that the write and read functions for 64bit wide register
+    """
+    reg_desc._rio.mem = np.array(
+        list(map(lambda v: v % 256, range(reg_desc.node.size))), np.uint8)
+    assert reg_desc.AnAddrmapWith64bitRegs.AReg0.read() == np.uint64(0x1716151413121110)
+    assert reg_desc.AnAddrmapWith64bitRegs.AReg0.VAL.read() == np.uint64(0x1716151413121110)
+    assert reg_desc.AnAddrmapWith64bitRegs.AReg1.FIELD7DOWNTO4.read(
+    ) == np.uint64(1)
+
+
+
 def test_arrays(reg_desc):
     """
     Test the accessibility of arrays through the __get_item__ or [] method
     """
+
+    reg_desc._rio.mem = np.zeros([reg_desc.node.size], np.uint8)
     # Elementwise access
     reg_desc.AnAddrmap.ARepeatedReg[0].write(11)
     reg_desc.AnAddrmap.ARepeatedReg[1].write(12)
@@ -163,6 +178,7 @@ def test_tostr(reg_desc):
     """
     reg_desc._rio.mem = np.array(
         list(map(lambda v: v % 256, range(reg_desc.node.size))), np.uint8)
+
     reg_desc.AnAddrmap.AnotherRegAt20.write(0x12345678)
     reg_desc.AnAddrmap.ARegWithFields.FIELD13DOWNTO4.write(3)
 
@@ -174,6 +190,9 @@ def test_tostr(reg_desc):
     reg_desc.AnotherAddrmap.TenRegs[4:7].write([4, 5, 6])
     reg_desc.TwoMemories[0].write(0, list(range(10, 120, 1)))
     reg_desc.TwoMemories[1].write(0, list(range(10, 120, 2)))
+
+    assert reg_desc.AnAddrmapWith64bitRegs.AReg0.read() == 0x1716151413121110
+
 
     result = str(reg_desc)
     expected = """test_register_description:
@@ -234,11 +253,11 @@ def test_tostr(reg_desc):
       FIELD3DOWNTO0   :          1 = 0x01
       FIELD7DOWNTO4   :          0 = 0x00
   AnAddrmapWith64bitRegs:
-    AReg0             : 1663540288323457280 = 0x1716151413121100
-      VAL             : 1663540288323457280 = 0x1716151413121100
-    AReg1             : 2242261671028070656 = 0x1f1e1d1c1b1a1900
-      FIELD3DOWNTO0   :          0 = 0x0000000000000000
-      FIELD7DOWNTO4   :          0 = 0x0000000000000000"""
+    AReg0             : 1663540288323457296 = 0x1716151413121110
+      VAL             : 1663540288323457296 = 0x1716151413121110
+    AReg1             : 2242261671028070680 = 0x1f1e1d1c1b1a1918
+      FIELD3DOWNTO0   :          8 = 0x0000000000000008
+      FIELD7DOWNTO4   :          1 = 0x0000000000000001"""
     assert result == expected, result + expected
 
 

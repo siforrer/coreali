@@ -22,9 +22,9 @@ class Field(Component):
             setattr(self, "read", self._read)
 
     def _register_to_field_value(self, register_value):
-        field_value = np.uint64(register_value*2**(-self.node.lsb))
-        field_value = np.bitwise_and(field_value, np.uint64(
-            2**(self.node.msb-self.node.lsb+1)-1))
+        field_value = register_value >> np.uint64(self.node.lsb)
+        mask = np.uint64(2**(self.node.msb-self.node.lsb+1)-1)
+        field_value = np.bitwise_and(field_value, mask)
         return field_value
 
     def _read(self):

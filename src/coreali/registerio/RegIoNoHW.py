@@ -53,8 +53,8 @@ class RegIoNoHW(RegIo):
         raw_bytes = self._read_raw(address, word_size)
         for i in range(word_size-1, -1, -1):
             ret *= np.uint64(2**8)
-            ret += raw_bytes[i]
-        return np.uint64(ret)
+            ret += np.uint64(raw_bytes[i])
+        return ret
 
     def _write_word(self, address, word_size, word):
         """Write a single word

@@ -105,6 +105,14 @@ class Selector():
             return self.numel_of_slice(self.selected[-1])
         return 1
 
+    @staticmethod
+    def unravel_index(flat_idx, dims):
+        indices = []
+        for dim in reversed(dims):
+            indices.append(flat_idx % dim)
+            flat_idx //= dim
+        return tuple(reversed(indices))
+
     def __iter__(self):
         tree_idx = np.empty(len(self.selected), int)
         slice_idx = []
@@ -115,7 +123,7 @@ class Selector():
                 tree_idx[i] = val
         dim = self.data_shape()
         for flat_idx in range(0, self.numel(), self.flat_len()):
-            data_idx = np.unravel_index(flat_idx, dim)
+            data_idx = Selector.unravel_index(flat_idx, dim)
             for pos_in_data, pos_in_sel in enumerate(slice_idx):
                 tree_idx[pos_in_sel] = self.idx_of_slice(
                     self.selected[pos_in_sel], data_idx[pos_in_data])
